@@ -8,6 +8,11 @@ Lumiverse를 함께 만드는 규칙입니다. 이 문서는 "무엇을, 왜 그
 > 3. [docs/2_보안_체크리스트.md](2_보안_체크리스트.md) — 키·비밀값 다루기
 > 4. [docs/3_오류방지_FAQ.md](3_오류방지_FAQ.md) — 막혔을 때
 
+> [!important] 클론 후 Claude Code를 처음 열면 — 훅 신뢰 승인 1회
+> 이 리포에는 시크릿(API 키)이 코드에 섞여 들어가는 걸 막는 보안 훅(`.claude/hooks/secret-scan.sh`)이 들어 있습니다.
+> Claude Code는 보안상 클론한 리포의 훅을 자동 실행하지 않고, **처음 사용할 때 "이 훅을 신뢰하겠냐"고 한 번 묻습니다.** → **승인**하면 그 뒤로는 자동 작동합니다. (당황하지 마세요. 클론만으로 남의 머신에서 명령이 돌지 않게 막는 정상 동작입니다.)
+> ⚠️ 이 훅은 **Claude Code로 작업할 때만** 작동합니다. 터미널에서 직접 `git commit` 할 때는 [보안 체크리스트](2_보안_체크리스트.md)를 직접 확인하세요.
+
 ---
 
 ## 1. 협업 흐름 한눈에
@@ -16,10 +21,10 @@ Lumiverse를 함께 만드는 규칙입니다. 이 문서는 "무엇을, 왜 그
 
 ```
   ┌─ main (항상 동작하는 최신본, 보호됨) ─────────────────────────┐
-  │                                                              │
-  │   ① main 최신화        ④ 푸시          ⑤ PR 생성   ⑥ 머지   │
-  │        │                  │                │          │     │
-  └────────┼──────────────────┼────────────────┼──────────┘     │
+  │                                                               │
+  │   ① main 최신화        ④ 푸시          ⑤ PR 생성   ⑥ 머지 │
+  │         │                  │                │          │      │
+  └─────────┼──────────────────┼────────────────┼──────────┘      │
            ▼                  ▲                ▼                 ▲
         ② 브랜치 생성 ──→ ③ 작업·커밋 ──→ feat/내-작업 ──→ 리뷰 후 main 으로 합침
 ```
@@ -43,12 +48,12 @@ Lumiverse를 함께 만드는 규칙입니다. 이 문서는 "무엇을, 왜 그
 - **작업은 항상 새 브랜치에서** 하고, 끝나면 PR로 `main`에 합칩니다.
 - **브랜치 이름**은 `종류/짧은-설명` 형식 (영어 소문자, 띄어쓰기 대신 `-`):
 
-  | 종류 | 언제 | 예시 |
-  |---|---|---|
-  | `feat/` | 새 기능 | `feat/goal-input` |
-  | `fix/` | 버그 수정 | `fix/star-color` |
-  | `docs/` | 문서만 | `docs/readme-update` |
-  | `chore/` | 설정·잡일 | `chore/eslint-config` |
+| 종류 | 언제 | 예시 |
+|---|---|---|
+| `feat/` | 새 기능 | `feat/goal-input` |
+| `fix/` | 버그 수정 | `fix/star-color` |
+| `docs/` | 문서만 | `docs/readme-update` |
+| `chore/` | 설정·잡일 | `chore/eslint-config` |
 
 - **작업 시작 전 반드시 `main`을 최신화**한 뒤 브랜치를 만듭니다. (오래된 main에서 시작하면 충돌이 늘어납니다.)
 
@@ -107,18 +112,15 @@ CLAUDE.md의 "깃푸시" 규칙과 동일합니다. **이 규칙을 그대로 Cl
 
 아래는 GitHub 웹에서 한 번만 설정합니다. (코드가 아니라 GitHub 설정입니다.)
 
-1. **협업자 초대**
+1. **협업자 초대** -> 진행중
    `Settings → Collaborators → Add people` 로 팀원 GitHub 계정 초대 → 팀원이 메일/알림에서 수락.
 
-2. **`main` 브랜치 보호** (사고 차단의 핵심)
+2. **[`main` 브랜치 보호](https://billtech.tistory.com/31)** (사고 차단의 핵심) -> 전체 완료
    `Settings → Branches → Add branch ruleset (또는 Add rule)` 에서 `main` 대상으로:
    - ☑ Require a pull request before merging (직접 푸시 금지, PR 필수)
    - ☑ (선택) Require approvals: 1 — 머지 전 리뷰 1건 필요
    - ☑ Block force pushes
    → 이 설정으로 "실수로 main을 날리는" 사고가 구조적으로 막힙니다.
 
-3. **Secret Scanning 켜기**
+2. **Secret Scanning 켜기** -> 활성화
    `Settings → Code security → Secret protection` 에서 활성화 → 키가 실수로 올라가면 GitHub이 알려줍니다.
-
-> [!note] 캡처 자리
-> 위 3개 설정 화면 스크린샷을 이 자리에 추가해두면 팀원이 따라 하기 쉽습니다.
