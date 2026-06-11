@@ -1,0 +1,4 @@
+# obsidian (vault settings — local only, not for deploy repo)
+.obsidian/
+
+.DS_Store
