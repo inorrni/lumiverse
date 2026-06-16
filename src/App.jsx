@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
+import RequireAuth from './components/RequireAuth'
 import LandingPage from './pages/LandingPage'
 import AuthPage from './pages/AuthPage'
 import ModePage from './pages/ModePage'
@@ -17,21 +18,26 @@ const DesignCanvasApp = lazy(() => import('./sample/DesignCanvasApp'))
 export default function App() {
   return (
     <Routes>
-      {/* 온보딩: 랜딩 → 로그인 → 모드 → 목표 → AI분해 */}
+      {/* 공개: 랜딩 → 로그인 */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<AuthPage />} />
-      <Route path="/mode" element={<ModePage />} />
-      <Route path="/goal" element={<GoalInputPage />} />
-      <Route path="/breakdown" element={<AiBreakdownPage />} />
 
-      {/* 메인 앱 (하단 탭) + 핵심 루프 */}
-      <Route path="/app" element={<DashboardPage />} />
-      <Route path="/app/today" element={<TodayPage />} />
-      <Route path="/app/planet/:id" element={<PlanetDetailPage />} />
-      <Route path="/app/settings" element={<SettingsPage />} />
-      {/* Should — 추후 구현 */}
-      <Route path="/app/blackhole" element={<ComingSoonPage title="블랙홀 — 준비 중" />} />
-      <Route path="/app/check" element={<ComingSoonPage title="AI 점검 — 준비 중" />} />
+      {/* 보호 라우트 — 세션 없으면 /login 으로. (온보딩 + 메인 앱) */}
+      <Route element={<RequireAuth />}>
+        {/* 온보딩: 모드 → 목표 → AI분해 */}
+        <Route path="/mode" element={<ModePage />} />
+        <Route path="/goal" element={<GoalInputPage />} />
+        <Route path="/breakdown" element={<AiBreakdownPage />} />
+
+        {/* 메인 앱 (하단 탭) + 핵심 루프 */}
+        <Route path="/app" element={<DashboardPage />} />
+        <Route path="/app/today" element={<TodayPage />} />
+        <Route path="/app/planet/:id" element={<PlanetDetailPage />} />
+        <Route path="/app/settings" element={<SettingsPage />} />
+        {/* Should — 추후 구현 */}
+        <Route path="/app/blackhole" element={<ComingSoonPage title="블랙홀 — 준비 중" />} />
+        <Route path="/app/check" element={<ComingSoonPage title="AI 점검 — 준비 중" />} />
+      </Route>
 
       {/* 디자인 레퍼런스 캔버스 */}
       <Route
