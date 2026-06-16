@@ -39,7 +39,7 @@ export default function ModePage() {
 
   return (
     <AppScreen padTop={22} seed={21} density={50} dim nebula={false}>
-      <BackRow label="뒤로" to="/login" />
+      <BackRow label="뒤로" to="/" />
       <Kicker>NAVIGATION STYLE</Kicker>
       <h1 className={styles.title}>당신만의 항해 스타일을<br />선택하세요</h1>
       <p className={styles.sub}>언제든 설정에서 목표별로 바꿀 수 있어요.</p>
