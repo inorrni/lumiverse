@@ -6,27 +6,19 @@
   background: var(--bg);
 }
 
-.stars,
-.starsBig {
-  position: absolute;
-  top: 0;
-  left: 0;
-  border-radius: var(--radius-full);
-}
-.stars { width: 1px; height: 1px; }
-.starsBig { width: 2px; height: 2px; }
-
-.grain {
+/* 배경 이미지 — 화면 전체를 덮는다(비율 유지·중앙 크롭) */
+.image {
   position: absolute;
   inset: 0;
-  background-image: var(--grain-url);
-  background-size: 200px;
-  opacity: 0.06;
-  mix-blend-mode: screen;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
-.nebula {
+/* 내부 화면 가독성용 어두운 오버레이 */
+.dim {
   position: absolute;
-  opacity: 0.5;
-  object-fit: contain;
+  inset: 0;
+  background: rgba(6, 5, 4, 0.45);
 }
