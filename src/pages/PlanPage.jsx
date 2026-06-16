@@ -12,12 +12,12 @@ import { useAsync } from '../hooks/useAsync'
 import { breakdownGoal } from '../lib/api'
 import { friendlyError } from '../lib/errors'
 import { useGoals } from '../store/GoalStore'
-import styles from './AiBreakdownPage.module.css'
+import styles from './PlanPage.module.css'
 
 const MIN_PLANETS = 3
 const MAX_PLANETS = 5
 
-function BreakdownLoading() {
+function PlanLoading() {
   return (
     <div className={styles.loading}>
       <Planet size={72} style={{ opacity: 0.7 }} />
@@ -27,9 +27,9 @@ function BreakdownLoading() {
   )
 }
 
-// 5 · AI 분해 (Must) — 추천: 비동기 4상태로 AI 분해 / 알아서: 직접 입력.
+// 5 · 경로 설계 (Must) — 추천: 비동기 4상태로 AI 분해 / 알아서: 빈 목록에서 직접 입력.
 // 어느 쪽이든 행성을 수정·추가·삭제한 뒤 우주로 떠난다.
-export default function AiBreakdownPage() {
+export default function PlanPage() {
   const navigate = useNavigate()
   const { state } = useLocation()
   const { addGoal } = useGoals()
@@ -114,8 +114,8 @@ export default function AiBreakdownPage() {
 
   return (
     <AppScreen padTop={22} seed={41} density={55} dim nebula={false}>
-      <BackRow label="뒤로" to="/goal" right={<Kicker>{isAuto ? 'MANUAL' : 'RECOMMENDED'}</Kicker>} />
-      <Kicker>{isAuto ? 'DIRECT INPUT' : 'AI NAVIGATOR'}</Kicker>
+      <BackRow label="뒤로" to="/goal" state={state} right={<Kicker>{isAuto ? 'MANUAL' : 'RECOMMENDED'}</Kicker>} />
+      <Kicker>{isAuto ? 'DIRECT INPUT' : 'NAVIGATOR'}</Kicker>
       <h1 className={styles.title}>
         {isAuto ? <>행성을 직접<br />입력해 주세요</> : <>항해사가 경로를<br />설계했어요</>}
       </h1>
@@ -127,12 +127,12 @@ export default function AiBreakdownPage() {
           data={data?.steps}
           error={friendlyError(error)}
           onRetry={() => run(goal, { days, intensity })}
-          loading={<BreakdownLoading />}
+          loading={<PlanLoading />}
           empty={
             <EmptyView
               title="분해 결과가 없어요"
               message="목표를 조금 더 구체적으로 적으면 별로 나누기 쉬워요."
-              action={<Button variant="ghost" onClick={() => navigate('/goal')}>목표 다시 입력</Button>}
+              action={<Button variant="ghost" onClick={() => navigate('/goal', { state: { mode, inputMethod: isAuto ? 'auto' : 'recommend' } })}>목표 다시 입력</Button>}
             />
           }
         >

@@ -37,9 +37,9 @@ export default function ScrMode() {
       <Kicker size={10.5} style={{ marginBottom: 4 }}>입력 방식</Kicker>
       <div style={{ borderTop: `1px solid ${LUM.lineSoft}` }}>
         <div style={{ borderBottom: `1px solid ${LUM.lineSoft}` }}>
-          <RadioRow label="알아서" sub="— AI 없이 직접 입력할게요" />
+          <RadioRow label="추천" sub="— 우주 항해사가 목표를 분해해줘요" on />
         </div>
-        <RadioRow label="추천" sub="— AI 항해사가 목표를 분해해줘요" on />
+          <RadioRow label="알아서" sub="— 우주 항해사 없이 직접 입력할게요" />
       </div>
 
       <div style={{ flex: 1 }}></div>

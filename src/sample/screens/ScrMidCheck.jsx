@@ -7,7 +7,7 @@ export default function ScrMidCheck() {
       <StarField seed={71} density={70} />
       <BackRow label="내 우주" />
       <Kicker>MID-CHECK</Kicker>
-      <h1 style={{ margin: '10px 0 18px', fontFamily: LUM.serif, fontWeight: 600, fontSize: 25 }}>AI 중간점검 결과</h1>
+      <h1 style={{ margin: '10px 0 18px', fontFamily: LUM.serif, fontWeight: 600, fontSize: 25 }}>중간점검 결과</h1>
 
       <HairCard pad={'18px 18px'}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>

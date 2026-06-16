@@ -164,7 +164,7 @@ export default function DashboardPage() {
       {featured && (
         <Card className={styles.midcheck}>
           <div className={styles.midHead}>
-            <span className={styles.headLeft}><Sparkle size={10} /><Kicker tone="hi">Mid-Check AI Agent</Kicker></span>
+            <span className={styles.headLeft}><Sparkle size={10} /><Kicker tone="hi">Mid-Check</Kicker></span>
             <span className={styles.midDate}>기록 3일 이상부터</span>
           </div>
           <div className={styles.midBody}>

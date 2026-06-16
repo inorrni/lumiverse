@@ -1,10 +1,11 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import AppScreen from '../components/layout/AppScreen'
 import Wordmark from '../components/ui/Wordmark'
 import Kicker from '../components/ui/Kicker'
 import TextInput from '../components/ui/TextInput'
 import Button from '../components/ui/Button'
+import { Spinner } from '../components/ui/DataView'
 import { useAuth } from '../store/AuthStore'
 import { useGoals } from '../store/GoalStore'
 import styles from './AuthPage.module.css'
@@ -12,14 +13,45 @@ import styles from './AuthPage.module.css'
 // 2 · 로그인/가입 (Must) — Supabase Auth. 신규 → 모드 선택 / 기존(우주 보유) → 대시보드.
 export default function AuthPage() {
   const navigate = useNavigate()
-  const { login, loginWithKakao } = useAuth()
+  const { login, loginWithKakao, user, ready } = useAuth()
   const { goals } = useGoals()
+  const [params, setParams] = useSearchParams()
   const [email, setEmail] = useState('')
   const [pw, setPw] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
   const afterAuth = () => navigate(goals.length > 0 ? '/app' : '/mode')
+
+  // 카카오 OAuth 복귀(?postLogin=1) — 세션이 붙으면 로그인 화면을 떠나 다음 화면으로.
+  useEffect(() => {
+    if (!params.has('postLogin')) return
+    if (!ready) return // 세션 복원 대기
+    if (user) {
+      afterAuth()
+    } else {
+      // 세션이 끝내 안 붙음(취소·미동의 등) — 플래그 정리하고 로그인 폼 노출.
+      params.delete('postLogin')
+      setParams(params, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params, ready, user])
+
+  // OAuth 복귀 처리 중에는 폼 대신 로딩만 — 랜딩 깜빡임 없이 로그인 화면에서 매끄럽게 이어진다.
+  const resolvingOAuth = params.has('postLogin') && (!ready || user)
+  if (resolvingOAuth) {
+    return (
+      <AppScreen padTop={26} seed={11} density={60} dim nebula={false}>
+        <header className={styles.brand}>
+          <Wordmark size={16} sparkle />
+        </header>
+        <div className={styles.loading}>
+          <Spinner />
+          <p className={styles.loadingMsg}>우주로 들어가는 중…</p>
+        </div>
+      </AppScreen>
+    )
+  }
 
   const submit = async (e) => {
     e.preventDefault()

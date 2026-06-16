@@ -11,23 +11,15 @@ import styles from './GoalInputPage.module.css'
 
 const MAX = 30
 
-const CalendarIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-    strokeWidth="1.6" aria-hidden="true">
-    <rect x="3.5" y="5" width="17" height="16" rx="2" />
-    <line x1="3.5" y1="10" x2="20.5" y2="10" />
-    <line x1="8" y1="2.8" x2="8" y2="6.5" /><line x1="16" y1="2.8" x2="16" y2="6.5" />
-  </svg>
-)
-
-// 4 · 목표 입력 — 목표 + D-Day(자유). 별 개수 = 일수. AI 분해로 넘긴다.
+// 4 · 목표 입력 — 목표 + D-Day(자유). 별 개수 = 일수. 추천=AI분해 / 알아서=직접입력으로 넘긴다.
 export default function GoalInputPage() {
   const navigate = useNavigate()
   const { state } = useLocation()
   const mode = state?.mode || 'gentle'
   const inputMethod = state?.inputMethod || 'recommend'
-  const [goal, setGoal] = useState('')
-  const [dday, setDday] = useState('')
+  // /plan 에서 뒤로 올 때 state 로 복원 — 새로 들어오면 빈값.
+  const [goal, setGoal] = useState(state?.goal || '')
+  const [dday, setDday] = useState(state?.dday || '')
   const [error, setError] = useState('')
 
   const days = useMemo(() => daysUntil(dday), [dday])
@@ -43,7 +35,7 @@ export default function GoalInputPage() {
       setError('디데이는 오늘 이후 날짜로 골라 주세요.')
       return
     }
-    navigate('/breakdown', { state: { goal: text, dday: dday || null, days, mode, inputMethod } })
+    navigate('/plan', { state: { goal: text, dday: dday || null, days, mode, inputMethod } })
   }
 
   return (
@@ -70,7 +62,6 @@ export default function GoalInputPage() {
             min={todayISO()}
             value={dday}
             onChange={(e) => { setDday(e.target.value); if (error) setError('') }}
-            right={<CalendarIcon />}
           />
         </div>
 
@@ -93,7 +84,9 @@ export default function GoalInputPage() {
         </p>
 
         <div className={styles.spacer} />
-        <Button type="submit" fullWidth>AI 항해사에게 분해받기&ensp;▸</Button>
+        <Button type="submit" fullWidth>
+          {inputMethod === 'auto' ? '내 우주 직접 그리기' : '우주 항해사에게 분해받기'}&ensp;▸
+        </Button>
       </form>
     </AppScreen>
   )

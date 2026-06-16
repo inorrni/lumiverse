@@ -6,5 +6,5 @@ export function friendlyError(err) {
   if (/\b401\b|unauthorized/i.test(msg)) return '로그인이 필요해요.'
   if (/\b429\b|too many/i.test(msg)) return '요청이 많아요. 잠시 후 다시 시도해 주세요.'
   if (/\b5\d\d\b|server/i.test(msg)) return '서버에 일시적인 문제가 생겼어요. 다시 시도해 주세요.'
-  return 'AI가 목표를 분해하지 못했어요. 다시 시도해 주세요.'
+  return '우주 항해사가 목표를 분해하지 못했어요. 다시 시도해 주세요.'
 }

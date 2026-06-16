@@ -52,3 +52,18 @@
   font-weight: var(--font-bold);
   margin-right: var(--space-2);
 }
+
+.loading {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.loadingMsg {
+  font-size: var(--text-sm);
+  color: var(--text-low);
+  letter-spacing: 0.02em;
+}

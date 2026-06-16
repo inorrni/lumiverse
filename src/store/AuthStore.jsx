@@ -53,10 +53,12 @@ export function AuthProvider({ children }) {
   }, [])
 
   // 카카오 OAuth — 호스팅 Auth 에서 Kakao provider 활성화 필요.
+  // 복귀는 로그인 화면(/login?postLogin=1)으로. 랜딩을 경유하지 않아 깜빡임 없이
+  // 로그인 화면에서 로딩만 보여주다 세션이 붙으면 다음 화면으로 넘어간다.
   const loginWithKakao = useCallback(async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'kakao',
-      options: { redirectTo: window.location.origin + import.meta.env.BASE_URL },
+      options: { redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}login?postLogin=1` },
     })
     return { error }
   }, [])
