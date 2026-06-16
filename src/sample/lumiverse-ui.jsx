@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { asset } from '../lib/asset'
 
 // Lumiverse 공유 UI — v2 흑백 먹·그레이스케일
 // 레퍼런스: Image #1 (COSTAR 모바일) / Image #3 (SNR 웹 대시보드)
@@ -53,7 +54,7 @@ function StarField({ seed = 7, density = 90, dim = false, style }) {
 function Nebula({ top = -60, right = -80, size = 380, opacity = 0.55 }) {
   return (
     <img
-      src="/assets/bg/nebula.png"
+      src={asset('assets/bg/nebula.png')}
       alt="galaxy nebula"
       aria-hidden="true"
       style={{
@@ -127,7 +128,7 @@ function Sparkle({ size = 12, color = LUM.txtHi, style }) {
 function Planet({ size = 64, style }) {
   return (
     <img
-      src="/assets/celestial/planet.png"
+      src={asset('assets/celestial/planet.png')}
       alt="planet"
       aria-hidden="true"
       width={size}
@@ -141,7 +142,7 @@ function Planet({ size = 64, style }) {
 function BlackHole({ size = 56, style }) {
   return (
     <img
-      src="/assets/celestial/blackhole.png"
+      src={asset('assets/celestial/blackhole.png')}
       alt="black hole"
       aria-hidden="true"
       width={size}
@@ -155,7 +156,7 @@ function BlackHole({ size = 56, style }) {
 function Constellation({ w = 110, h = 54, dim = false, style }) {
   return (
     <img
-      src="/assets/celestial/constellation.png"
+      src={asset('assets/celestial/constellation.png')}
       alt="constellation"
       aria-hidden="true"
       width={w}

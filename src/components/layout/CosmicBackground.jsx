@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import styles from './CosmicBackground.module.css'
+import { asset } from '../../lib/asset'
 
 // 결정적 별밭 — seed 가 같으면 항상 같은 배치(리렌더 깜빡임 없음).
 function starShadows(seed, n, w, h) {
@@ -27,7 +28,7 @@ export default function CosmicBackground({ seed = 7, density = 90, nebula = true
       <div className={styles.stars} style={{ boxShadow: sh1 }} />
       <div className={styles.starsBig} style={{ boxShadow: sh2 }} />
       {nebula && (
-        <img className={styles.nebula} src="/assets/bg/nebula.png" alt=""
+        <img className={styles.nebula} src={asset('assets/bg/nebula.png')} alt=""
           style={{ top: -40, right: -90, width: 400, height: 360 }} />
       )}
       <div className={styles.grain} />
