@@ -3,9 +3,9 @@ import styles from './BottomNav.module.css'
 import { NavIcon } from '../ui/icons'
 
 const TABS = [
-  { to: '/app', label: '우주', kind: 'universe' },
+  { to: '/app', label: '은하계', kind: 'universe' },
   { to: '/app/today', label: '투두', kind: 'todo' },
-  { to: '/app/blackhole', label: '블랙홀', kind: 'blackhole' },
+  { to: '/app/universe', label: '우주', kind: 'blackhole' },
   { to: '/app/check', label: '점검', kind: 'check' },
   { to: '/app/settings', label: '설정', kind: 'settings' },
 ]
