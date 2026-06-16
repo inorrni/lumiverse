@@ -25,7 +25,12 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      # Vite 빌드 시 VITE_* 는 번들에 박힌다 → repo Secrets 를 빌드 env 로 주입해야
+      # 배포본이 Supabase 에 연결된다. (Secrets 등록만으론 빌드에 안 들어감)
       - run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
       # SPA 새로고침/딥링크 폴백 — 알 수 없는 경로도 앱 셸을 받게
       - run: cp dist/index.html dist/404.html
       - uses: actions/configure-pages@v5

@@ -10,7 +10,7 @@ import { EmptyView } from '../components/ui/DataView'
 import { StarIcon, Sparkle } from '../components/ui/icons'
 import CheckRow from '../components/feature/today/CheckRow'
 import { useGoals } from '../store/GoalStore'
-import { todayISO, todayLabel } from '../lib/date'
+import { todayLabel } from '../lib/date'
 import styles from './TodayPage.module.css'
 
 // 8 · 오늘의 투두 (Must 핵심 루프) — 오늘의 별을 체크하면 선명도가 오른다.
@@ -18,11 +18,12 @@ export default function TodayPage() {
   const navigate = useNavigate()
   const { goals, toggleStarToday } = useGoals()
   const [doneOnly, setDoneOnly] = useState(false)
-  const today = todayISO()
 
-  // 모든 목표의 세부목표(별)를 오늘의 투두로 펼친다.
+  // 오늘(due_date) 배정된 별만 오늘의 투두로 펼친다.
   const items = goals.flatMap((g) =>
-    g.steps.map((s) => ({ goalId: g.id, goalTitle: g.title, step: s, checked: s.lastCheck === today }))
+    g.steps
+      .filter((s) => s.todayStarId)
+      .map((s) => ({ goalId: g.id, goalTitle: g.title, step: s, checked: s.checkedToday }))
   )
   const doneCount = items.filter((i) => i.checked).length
   const total = items.length

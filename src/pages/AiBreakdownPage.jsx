@@ -40,14 +40,16 @@ export default function AiBreakdownPage() {
   const days = state?.days ?? null
   const mode = state?.mode || 'gentle'
   const isAuto = state?.inputMethod === 'auto'
+  const intensity = mode === 'sparta' ? 'spartan' : 'easy'
 
   const [planets, setPlanets] = useState([])
   const [editingId, setEditingId] = useState(null)
+  const [saving, setSaving] = useState(false)
 
   // 추천 모드만 AI 호출. 알아서 모드는 빈 목록에서 직접 입력.
   useEffect(() => {
-    if (goal && !isAuto) run(goal, { days })
-  }, [goal, days, isAuto, run])
+    if (goal && !isAuto) run(goal, { days, intensity })
+  }, [goal, days, intensity, isAuto, run])
 
   useEffect(() => {
     if (!isAuto && status === 'success' && data?.steps) {
@@ -67,9 +69,14 @@ export default function AiBreakdownPage() {
   const removePlanet = (id) => setPlanets((p) => p.filter((x) => x.id !== id))
 
   const inRange = planets.length >= MIN_PLANETS && planets.length <= MAX_PLANETS
-  const confirm = () => {
-    addGoal({ goal, steps: planets, days, dday, mode })
-    navigate('/app')
+  const confirm = async () => {
+    setSaving(true)
+    try {
+      await addGoal({ goal, planets, dday, mode, inputMode: isAuto ? 'self' : 'ai' })
+      navigate('/app')
+    } catch {
+      setSaving(false)
+    }
   }
 
   // 추천/알아서 공통 편집 UI
@@ -99,7 +106,9 @@ export default function AiBreakdownPage() {
       {!inRange && (
         <p className={styles.hint}>행성은 {MIN_PLANETS}~{MAX_PLANETS}개여야 우주로 떠날 수 있어요. (현재 {planets.length}개)</p>
       )}
-      <Button fullWidth onClick={confirm} disabled={!inRange}>확인하고 우주로 떠나기&ensp;▸</Button>
+      <Button fullWidth onClick={confirm} disabled={!inRange || saving}>
+        {saving ? '우주를 만드는 중…' : <>확인하고 우주로 떠나기&ensp;▸</>}
+      </Button>
     </div>
   )
 
@@ -117,7 +126,7 @@ export default function AiBreakdownPage() {
           status={status}
           data={data?.steps}
           error={friendlyError(error)}
-          onRetry={() => run(goal, { days })}
+          onRetry={() => run(goal, { days, intensity })}
           loading={<BreakdownLoading />}
           empty={
             <EmptyView

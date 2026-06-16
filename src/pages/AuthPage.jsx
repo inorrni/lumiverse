@@ -9,29 +9,45 @@ import { useAuth } from '../store/AuthStore'
 import { useGoals } from '../store/GoalStore'
 import styles from './AuthPage.module.css'
 
-// 2 · 로그인/가입 (Must) — mock 인증. 신규 → 모드 선택 / 기존(우주 보유) → 대시보드.
+// 2 · 로그인/가입 (Must) — Supabase Auth. 신규 → 모드 선택 / 기존(우주 보유) → 대시보드.
 export default function AuthPage() {
   const navigate = useNavigate()
-  const { login, loginWithGoogle } = useAuth()
+  const { login, loginWithKakao } = useAuth()
   const { goals } = useGoals()
   const [email, setEmail] = useState('')
   const [pw, setPw] = useState('')
   const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
 
   const afterAuth = () => navigate(goals.length > 0 ? '/app' : '/mode')
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
     const v = email.trim()
     if (!/^\S+@\S+\.\S+$/.test(v)) {
       setError('이메일 형식을 확인해 주세요.')
       return
     }
-    login(v)
+    if (pw.length < 6) {
+      setError('비밀번호는 6자 이상이어야 해요.')
+      return
+    }
+    setBusy(true)
+    const { error: authErr } = await login(v, pw)
+    setBusy(false)
+    if (authErr) {
+      setError('로그인에 실패했어요. 다시 시도해 주세요.')
+      return
+    }
     afterAuth()
   }
 
-  const google = () => { loginWithGoogle(); afterAuth() }
+  // 카카오는 OAuth 리다이렉트 — 복귀 후 onAuthStateChange 가 세션을 채운다.
+  const kakao = async () => {
+    setBusy(true)
+    const { error: oErr } = await loginWithKakao()
+    if (oErr) { setBusy(false); setError('카카오 로그인을 시작하지 못했어요.') }
+  }
 
   return (
     <AppScreen padTop={26} seed={11} density={60} dim nebula={false}>
@@ -57,7 +73,9 @@ export default function AuthPage() {
           />
         </div>
 
-        <Button type="submit" fullWidth className={styles.cta}>계속하기&ensp;→</Button>
+        <Button type="submit" fullWidth className={styles.cta} disabled={busy}>
+          {busy ? '잠시만요…' : <>계속하기&ensp;→</>}
+        </Button>
 
         <div className={styles.divider}>
           <span className={styles.line} />
@@ -65,8 +83,8 @@ export default function AuthPage() {
           <span className={styles.line} />
         </div>
 
-        <Button variant="ghost" fullWidth onClick={google}>
-          <span className={styles.g}>G</span>Google로 계속
+        <Button variant="ghost" fullWidth onClick={kakao} disabled={busy}>
+          <span className={styles.g}>K</span>카카오로 계속
         </Button>
       </form>
     </AppScreen>
