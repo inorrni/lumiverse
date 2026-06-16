@@ -5,7 +5,7 @@ import LandingPage from './pages/LandingPage'
 import AuthPage from './pages/AuthPage'
 import ModePage from './pages/ModePage'
 import GoalInputPage from './pages/GoalInputPage'
-import AiBreakdownPage from './pages/AiBreakdownPage'
+import PlanPage from './pages/PlanPage'
 import DashboardPage from './pages/DashboardPage'
 import TodayPage from './pages/TodayPage'
 import PlanetDetailPage from './pages/PlanetDetailPage'
@@ -24,10 +24,10 @@ export default function App() {
 
       {/* 보호 라우트 — 세션 없으면 /login 으로. (온보딩 + 메인 앱) */}
       <Route element={<RequireAuth />}>
-        {/* 온보딩: 모드 → 목표 → AI분해 */}
+        {/* 온보딩: 모드 → 목표 → 경로 설계(AI분해 또는 직접입력) */}
         <Route path="/mode" element={<ModePage />} />
         <Route path="/goal" element={<GoalInputPage />} />
-        <Route path="/breakdown" element={<AiBreakdownPage />} />
+        <Route path="/plan" element={<PlanPage />} />
 
         {/* 메인 앱 (하단 탭) + 핵심 루프 */}
         <Route path="/app" element={<DashboardPage />} />
@@ -36,7 +36,7 @@ export default function App() {
         <Route path="/app/settings" element={<SettingsPage />} />
         {/* Should — 추후 구현 */}
         <Route path="/app/blackhole" element={<ComingSoonPage title="블랙홀 — 준비 중" />} />
-        <Route path="/app/check" element={<ComingSoonPage title="AI 점검 — 준비 중" />} />
+        <Route path="/app/check" element={<ComingSoonPage title="중간 점검 — 준비 중" />} />
       </Route>
 
       {/* 디자인 레퍼런스 캔버스 */}
