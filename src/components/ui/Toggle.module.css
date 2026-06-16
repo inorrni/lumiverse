@@ -1,0 +1,38 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+}
+
+.track {
+  position: relative;
+  width: 40px;
+  height: 23px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--line);
+  background: transparent;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.on {
+  background: var(--paper);
+  border-color: var(--paper);
+}
+
+.knob {
+  position: absolute;
+  top: 2.5px;
+  left: 2.5px;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  background: var(--text-secondary);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.on .knob {
+  transform: translateX(17px);
+  background: var(--ink-0);
+}

@@ -1,0 +1,33 @@
+/* 헤어라인 카드 — 반투명 표면 + 가는 보더 (기본) */
+.hair {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  padding: var(--space-4);
+}
+
+/* 갱지 카드 — 포인트 표면 (TODAY 등). 그레인 텍스처를 얹는다. */
+.paper {
+  position: relative;
+  border-radius: var(--radius-md);
+  background: linear-gradient(168deg, var(--paper), var(--paper-deep));
+  color: var(--paper-ink);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  padding: var(--space-4);
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  background-image: var(--grain-url);
+  background-size: 200px;
+  opacity: 0.28;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.paper > .content {
+  position: relative;
+}

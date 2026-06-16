@@ -1,0 +1,12 @@
+.kicker {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.hi  { color: var(--text-hi); }
+.low { color: var(--text-low); }
+.ink { color: var(--paper-ink); }

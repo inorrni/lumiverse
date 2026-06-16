@@ -1,0 +1,71 @@
+.title {
+  margin: var(--space-3) 0 var(--space-2);
+  font-family: var(--font-serif);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-xl);
+  line-height: 1.38;
+  letter-spacing: -0.01em;
+}
+
+.sub {
+  margin-bottom: var(--space-6);
+  font-size: var(--text-sm);
+  color: var(--text-low);
+}
+
+.cards {
+  display: flex;
+  gap: var(--space-3);
+  margin: var(--space-3) 0 var(--space-6);
+}
+
+.card {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  background: rgba(19, 17, 14, 0.55);
+  color: var(--text-secondary);
+  text-align: left;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.cardOn {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--paper-ink);
+  box-shadow: var(--shadow-md);
+}
+
+.check {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  color: var(--paper-ink);
+}
+
+.cardTitle {
+  font-size: var(--text-base);
+  font-weight: var(--font-bold);
+}
+
+.cardSub {
+  font-size: var(--text-xs);
+  line-height: var(--line-normal);
+  color: inherit;
+  opacity: 0.8;
+}
+
+.radios {
+  margin-top: var(--space-2);
+  border-top: 1px solid var(--line-soft);
+}
+
+.spacer {
+  flex: 1;
+  min-height: var(--space-6);
+}

@@ -1,0 +1,65 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: var(--space-4) 0;
+  text-align: left;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--text-hi);
+}
+
+.last { border-bottom: none; }
+.row:active { opacity: 0.75; }
+
+.star { color: var(--text-hi); }
+
+.body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  color: var(--text-hi);
+}
+
+.sub {
+  font-size: var(--text-xs);
+  color: var(--text-low);
+}
+
+.count {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-low);
+}
+
+.done {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  color: var(--text-hi);
+  border: 1.5px solid var(--text-hi);
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+}
+
+/* 갱지(잉크) 변형 — TodayPage 의 PaperCard 안에서 */
+.ink { border-bottom-color: var(--paper-line); color: var(--paper-ink); }
+.ink .star { color: var(--paper-ink); }
+.ink .title { color: var(--paper-ink); }
+.ink .sub { color: var(--paper-mid); }
+.ink .count { color: var(--paper-mid); }
+.ink .done {
+  color: var(--paper-ink);
+  border-color: var(--paper-ink);
+  transform: rotate(-4deg);
+}

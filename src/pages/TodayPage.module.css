@@ -1,0 +1,53 @@
+.title {
+  margin: var(--space-3) 0 var(--space-1);
+  font-family: var(--font-serif);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-xl);
+}
+
+.progress {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.emptyDone {
+  padding: var(--space-6) 0;
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--paper-mid);
+}
+
+.celebrate {
+  text-align: center;
+  margin-top: var(--space-8);
+}
+
+.bigStar {
+  position: relative;
+  display: inline-block;
+  color: var(--text-hi);
+}
+
+.sp1 { position: absolute; top: -4px; right: -12px; opacity: 0.8; }
+.sp2 { position: absolute; bottom: 2px; left: -13px; opacity: 0.55; }
+
+.celebTitle {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  margin-top: var(--space-3);
+}
+
+.celebSub {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-top: var(--space-2);
+  line-height: var(--line-normal);
+}
+
+.spacer {
+  flex: 1;
+  min-height: var(--space-6);
+}
