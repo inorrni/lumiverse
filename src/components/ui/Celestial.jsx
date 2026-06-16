@@ -16,3 +16,8 @@ export function Constellation({ w = 110, h = 54, dim = false, alt = '', style })
   return <img src={asset('assets/celestial/constellation.png')} alt={alt} width={w} height={h}
     style={{ flex: 'none', opacity: dim ? 0.36 : 0.88, objectFit: 'contain', ...style }} />
 }
+
+export function Galaxy({ size = 80, alt = '', style }) {
+  return <img src={asset('assets/celestial/galaxy.png')} alt={alt} width={size} height={size}
+    style={{ flex: 'none', objectFit: 'contain', ...style }} />
+}
