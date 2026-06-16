@@ -24,6 +24,11 @@
   padding: var(--pad-top, var(--space-5)) var(--space-5) var(--space-5);
 }
 
+/* 자식 요소가 flex-shrink로 압축되어 잘리지 않도록 */
+.content > * {
+  flex-shrink: 0;
+}
+
 /* 하단 내비 영역 — 노치 대응 */
 .nav {
   position: relative;
