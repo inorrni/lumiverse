@@ -17,6 +17,7 @@ interface BreakdownInput {
   galaxy_name?: string
   dday_days?: number
   intensity?: 'easy' | 'normal' | 'spartan'
+  exclude?: string[] // 이미 본 행성 이름들 — 이것과 다른 분해를 요청(리프레시)
 }
 
 const json = (body: unknown, status = 200) =>
@@ -48,6 +49,7 @@ Rules:
 - symbol: a single emoji representing the planet
 - todo_pattern: 1 to 3 representative daily todos that will be repeated across the period
 - intensity 'easy' = lighter load, lower difficulty, more slack / 'spartan' = dense, higher difficulty
+- If 'exclude_planet_names' is non-empty, propose a clearly DIFFERENT decomposition: avoid those planet names and take a different angle/structure than them
 - All text MUST be in Korean
 - galaxy_message: one calm encouraging sentence (no excessive cheerfulness, no emoji)`
 
@@ -56,6 +58,7 @@ Rules:
     galaxy_name: input.galaxy_name ?? input.goal,
     dday_days: input.dday_days ?? null,
     intensity: input.intensity ?? 'normal',
+    exclude_planet_names: input.exclude ?? [],
   })
 
   return [
@@ -109,8 +112,14 @@ Deno.serve(async (req) => {
   if (!input?.goal || !input.goal.trim()) return json({ error: 'goal is required' }, 400)
 
   const intensity = input.intensity ?? 'normal'
+  // exclude 정규화 — 트림·빈값 제거 후 정렬해 해시·프롬프트에 일관 반영(순서 무관 캐시 키).
+  const exclude = (Array.isArray(input.exclude) ? input.exclude : [])
+    .filter((s): s is string => typeof s === 'string' && s.trim().length > 0)
+    .map((s) => s.trim())
+    .sort()
+  input.exclude = exclude
   const inputHash = await sha256Hex(
-    `${input.goal.trim()}|${input.dday_days ?? ''}|${intensity}`,
+    `${input.goal.trim()}|${input.dday_days ?? ''}|${intensity}|${exclude.join('§')}`,
   )
 
   // 1) 캐시 조회
