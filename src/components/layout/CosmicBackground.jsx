@@ -7,7 +7,7 @@ import { asset } from '../../lib/asset'
 export default function CosmicBackground({ dim = false }) {
   return (
     <div className={styles.bg} aria-hidden="true">
-      <img className={styles.image} src={asset('assets/bg/space.png')} alt="" />
+      <img className={styles.image} src={asset('assets/bg/space.webp')} alt="" />
       {dim && <div className={styles.dim} />}
     </div>
   )
