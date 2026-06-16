@@ -28,8 +28,8 @@ function ModeCard({ mode, selected, onSelect }) {
   )
 }
 
-// 3 · 모드 선택 (Must) — 강도(살살/스파르타) + 입력방식(추천/알아서).
-// 기본 프리선택(살살·추천)으로 스킵 방지.
+// 3 · 모드 선택 (Must) — 입력방식(알아서/추천) 먼저, 추천일 때만 강도(살살/스파르타) 노출.
+// 강도는 AI 분해에만 쓰이므로 알아서 모드에선 감춘다. 기본 프리선택(추천·살살)으로 스킵 방지.
 export default function ModePage() {
   const navigate = useNavigate()
   const [mode, setMode] = useState('gentle')
@@ -44,24 +44,29 @@ export default function ModePage() {
       <h1 className={styles.title}>당신만의 항해 스타일을<br />선택하세요</h1>
       <p className={styles.sub}>언제든 설정에서 목표별로 바꿀 수 있어요.</p>
 
-      <Kicker>강도 · 목표치</Kicker>
-      <div className={styles.cards}>
-        {MODES.map((m) => (
-          <ModeCard key={m.key} mode={m} selected={mode === m.key} onSelect={() => setMode(m.key)} />
-        ))}
-      </div>
-
       <Kicker>입력 방식</Kicker>
       <div className={styles.radios} role="radiogroup" aria-label="입력 방식">
         <RadioRow
-          label="알아서" sub="— AI 없이 직접 입력할게요"
+          label="알아서" sub="— 우주 항해사 없이 직접 입력할게요"
           selected={inputMethod === 'auto'} onSelect={() => setInputMethod('auto')}
         />
         <RadioRow
-          label="추천" sub="— AI 항해사가 목표를 분해해줘요"
+          label="추천" sub="— 우주 항해사가 목표를 분해해줘요"
           selected={inputMethod === 'recommend'} onSelect={() => setInputMethod('recommend')} last
         />
       </div>
+
+      {/* 강도(살살/스파르타)는 AI 분해 프롬프트에만 영향 → 추천일 때만 노출. */}
+      {inputMethod === 'recommend' && (
+        <>
+          <Kicker>강도 · 목표치</Kicker>
+          <div className={styles.cards}>
+            {MODES.map((m) => (
+              <ModeCard key={m.key} mode={m} selected={mode === m.key} onSelect={() => setMode(m.key)} />
+            ))}
+          </div>
+        </>
+      )}
 
       <div className={styles.spacer} />
       <Button fullWidth onClick={next}>다음&ensp;▸</Button>

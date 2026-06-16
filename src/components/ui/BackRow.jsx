@@ -2,10 +2,10 @@ import { useNavigate } from 'react-router-dom'
 import styles from './BackRow.module.css'
 
 // 뒤로가기 행 molecule — 좌측 back, 우측 슬롯(right).
-// to 가 있으면 해당 경로로, 없으면 history back.
-export default function BackRow({ label = '뒤로', to, right = null }) {
+// to 가 있으면 해당 경로로(state 동반 가능), 없으면 history back.
+export default function BackRow({ label = '뒤로', to, state, right = null }) {
   const navigate = useNavigate()
-  const onBack = () => (to ? navigate(to) : navigate(-1))
+  const onBack = () => (to ? navigate(to, { state }) : navigate(-1))
   return (
     <div className={styles.row}>
       <button className={styles.back} onClick={onBack} aria-label={`${label}로 이동`}>

@@ -22,7 +22,7 @@ export default function ScrAiBreakdown() {
     <Screen padTop={22}>
       <StarField seed={41} density={55} dim />
       <BackRow label="뒤로" right={<Kicker size={10}>RECOMMENDED · 살살</Kicker>} />
-      <Kicker>AI NAVIGATOR</Kicker>
+      <Kicker>NAVIGATOR</Kicker>
       <h1 style={{ margin: '10px 0 8px', fontFamily: LUM.serif, fontWeight: 600, fontSize: 25, lineHeight: 1.38 }}>
         항해사가 경로를<br />설계했어요
       </h1>

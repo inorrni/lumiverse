@@ -35,7 +35,7 @@ export default function ScrGoalInput() {
       </div>
 
       <div style={{ flex: 1 }}></div>
-      <PrimaryBtn>AI 항해사에게 분해받기&ensp;▸</PrimaryBtn>
+      <PrimaryBtn>우주 항해사에게 분해받기&ensp;▸</PrimaryBtn>
       <Annot style={{ textAlign: 'center', marginTop: 12 }}>알아서모드 → 직접 행성 입력 / 대기: "별을 계산하는 중… ✦"<br />Groq 실패 → 내장 템플릿 폴백 + 토스트</Annot>
     </Screen>
   );

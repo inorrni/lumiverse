@@ -107,7 +107,7 @@ export default function ScrDashboard() {
       <HairCard pad={'14px 16px'} style={{ marginBottom: 4 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-            <Sparkle size={10} /><Kicker color={LUM.txtHi}>Mid-Check AI Agent</Kicker>
+            <Sparkle size={10} /><Kicker color={LUM.txtHi}>Mid-Check</Kicker>
           </div>
           <span style={{ fontFamily: LUM.mono, fontSize: 10, color: LUM.txtLow, whiteSpace: 'nowrap', flex: 'none' }}>최근 점검 · 06.10</span>
         </div>
