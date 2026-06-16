@@ -1,0 +1,146 @@
+.title {
+  font-family: var(--font-serif);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-xl);
+  letter-spacing: -0.01em;
+  margin: var(--space-2) 0 var(--space-4);
+}
+
+/* 은하계들이 흩어진 무대 */
+.cluster {
+  position: relative;
+  width: 100%;
+}
+
+/* 배경 궤도 타원 */
+.orbit {
+  position: absolute;
+  left: 10%;
+  top: 8%;
+  width: 80%;
+  height: 60%;
+  border: 1px solid var(--line-soft);
+  border-radius: 50%;
+  transform: rotate(-6deg);
+  pointer-events: none;
+}
+
+/* 은하계 카드 — 산개 절대 배치 */
+.galaxy {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-1);
+  max-width: 100px;
+  text-align: center;
+  transition: opacity 0.15s;
+  z-index: 1;
+}
+.galaxy:hover { opacity: 0.8; }
+.galaxy:active { opacity: 0.55; }
+
+.galaxyVisual {
+  position: relative;
+}
+
+.sparkle {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  color: var(--accent, var(--text-primary));
+}
+
+.galaxyName {
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  line-height: var(--line-snug);
+  margin-top: 2px;
+  word-break: keep-all;
+  max-width: 90px;
+}
+
+.galaxyMeta {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-low);
+}
+
+.pips {
+  display: flex;
+  gap: 3px;
+  color: var(--text-secondary);
+}
+
+.constellationBadge {
+  opacity: 0.7;
+}
+
+/* 새 목표 추가 */
+.addGalaxy {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 1;
+  transition: opacity 0.15s;
+}
+.addGalaxy:hover { opacity: 0.7; }
+
+.addCircle {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--line);
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  color: var(--text-low);
+  transition: border-color 0.15s, color 0.15s;
+}
+.addGalaxy:hover .addCircle {
+  border-color: var(--text-secondary);
+  color: var(--text-secondary);
+}
+
+.addLabel {
+  font-size: var(--text-xs);
+  color: var(--text-low);
+}
+
+/* 블랙홀 보관함 */
+.blackholeRow {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-2);
+}
+
+.blackholeBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.blackholeBtn:hover { border-color: var(--text-secondary); }
+
+.blackholeLabel {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}

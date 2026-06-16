@@ -8,6 +8,7 @@ import GoalInputPage from './pages/GoalInputPage'
 import PlanPage from './pages/PlanPage'
 import DashboardPage from './pages/DashboardPage'
 import TodayPage from './pages/TodayPage'
+import UniversePage from './pages/UniversePage'
 import PlanetDetailPage from './pages/PlanetDetailPage'
 import SettingsPage from './pages/SettingsPage'
 import ComingSoonPage from './pages/ComingSoonPage'
@@ -32,6 +33,7 @@ export default function App() {
         {/* 메인 앱 (하단 탭) + 핵심 루프 */}
         <Route path="/app" element={<DashboardPage />} />
         <Route path="/app/today" element={<TodayPage />} />
+        <Route path="/app/universe" element={<UniversePage />} />
         <Route path="/app/planet/:id" element={<PlanetDetailPage />} />
         <Route path="/app/settings" element={<SettingsPage />} />
         {/* Should — 추후 구현 */}

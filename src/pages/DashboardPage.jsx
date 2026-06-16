@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AppScreen from '../components/layout/AppScreen'
 import BottomNav from '../components/layout/BottomNav'
@@ -21,6 +22,18 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const { goals } = useGoals()
   const goNew = () => navigate('/mode')
+  const carouselRef = useRef(null)
+  const [activeIdx, setActiveIdx] = useState(0)
+  const handleScroll = () => {
+    const el = carouselRef.current
+    if (!el) return
+    setActiveIdx(Math.round(el.scrollLeft / el.offsetWidth))
+  }
+  const scrollCarousel = (dir) => {
+    const el = carouselRef.current
+    if (!el) return
+    el.scrollBy({ left: dir * el.offsetWidth, behavior: 'smooth' })
+  }
 
   const allSteps = goals.flatMap((g) => g.steps)
   const totalPlanets = allSteps.length
@@ -58,38 +71,75 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <Card pad={0} className={styles.universe}>
-        <div className={styles.cardHead}>
-          <span className={styles.headLeft}><Sparkle size={10} /><Kicker tone="hi">My Universe</Kicker></span>
-          {goals.length > 0 && <span className={styles.viewAll}>전체 보기 →</span>}
-        </div>
-
-        <div className={styles.universeBody}>
-          {goals.length === 0 ? (
+      {goals.length === 0 ? (
+        <Card pad={0} className={styles.universe}>
+          <div className={styles.cardHead}>
+            <span className={styles.headLeft}><Sparkle size={10} /><Kicker tone="hi">My Universe</Kicker></span>
+          </div>
+          <div className={styles.universeBody}>
             <EmptyView
               title="아직 우주가 비어 있어요"
               message="첫 목표를 입력해 나만의 우주를 만들어 보세요."
               action={<Button onClick={goNew}>✦&ensp;첫 목표 만들기</Button>}
             />
-          ) : (
-            <UniverseMap goals={goals} onAdd={goNew} onSelect={(id) => navigate(`/app/planet/${id}`)} />
-          )}
-        </div>
-
-        {featured && (
-          <div className={styles.footer}>
-            <div className={styles.footerLeft}>
-              <Constellation w={66} h={32} dim />
-              <span className={styles.footerText}>
-                {featured.title} 별 {featured.stars}개 — {canConstellation ? '별자리 가능' : `${CONSTELLATION_MIN - featured.stars}개 더`}
-              </span>
-            </div>
-            <span className={`${styles.pill} ${canConstellation ? '' : styles.pillOff}`}>
-              <Sparkle size={8} /> 별자리 만들기
-            </span>
           </div>
-        )}
-      </Card>
+        </Card>
+      ) : (
+        <>
+          <div className={styles.carouselWrapper}>
+            {goals.length > 1 && activeIdx > 0 && (
+              <button className={`${styles.arrow} ${styles.arrowLeft}`} onClick={() => scrollCarousel(-1)} aria-label="이전">
+                <svg width="9" height="14" viewBox="0 0 9 14" fill="none"><path d="M7.5 1L1.5 7l6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+            )}
+          <div className={styles.universeCarousel} ref={carouselRef} onScroll={handleScroll}>
+            {goals.map((goal) => {
+              const canConst = goal.stars >= CONSTELLATION_MIN
+              return (
+                <div key={goal.id} className={styles.universeSlide}>
+                  <Card pad={0} className={styles.universeCard}>
+                    <div className={styles.cardHead}>
+                      <span className={styles.headLeft}><Sparkle size={10} /><Kicker tone="hi">{goal.title}</Kicker></span>
+                      <span className={styles.viewAll} onClick={() => navigate('/app/universe')}>전체 보기 →</span>
+                    </div>
+                    <div className={styles.universeBody}>
+                      <UniverseMap
+                        steps={goal.steps}
+                        onAdd={goNew}
+                        onSelect={() => navigate(`/app/planet/${goal.id}`)}
+                      />
+                    </div>
+                    <div className={styles.footer}>
+                      <div className={styles.footerLeft}>
+                        <Constellation w={66} h={32} dim />
+                        <span className={styles.footerText}>
+                          {goal.title} 별 {goal.stars}개 — {canConst ? '별자리 가능' : `${CONSTELLATION_MIN - goal.stars}개 더`}
+                        </span>
+                      </div>
+                      <span className={`${styles.pill} ${canConst ? '' : styles.pillOff}`}>
+                        <Sparkle size={8} /> 별자리 만들기
+                      </span>
+                    </div>
+                  </Card>
+                </div>
+              )
+            })}
+          </div>
+            {goals.length > 1 && activeIdx < goals.length - 1 && (
+              <button className={`${styles.arrow} ${styles.arrowRight}`} onClick={() => scrollCarousel(1)} aria-label="다음">
+                <svg width="9" height="14" viewBox="0 0 9 14" fill="none"><path d="M1.5 1l6 6-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+            )}
+          </div>
+          {goals.length > 1 && (
+            <div className={styles.dots}>
+              {goals.map((_, i) => (
+                <span key={i} className={`${styles.dot} ${i === activeIdx ? styles.dotActive : ''}`} />
+              ))}
+            </div>
+          )}
+        </>
+      )}
 
       {featured && (
         <Card variant="paper" className={styles.today}>

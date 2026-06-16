@@ -65,6 +65,71 @@
   margin-bottom: var(--space-4);
 }
 
+.carouselWrapper {
+  position: relative;
+}
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+.arrow:hover {
+  color: var(--text-primary);
+  background: var(--surface-hi, var(--surface));
+}
+.arrowLeft  { left: -13px; }
+.arrowRight { right: -13px; }
+
+.universeCarousel {
+  display: flex;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin-bottom: var(--space-3);
+}
+.universeCarousel::-webkit-scrollbar { display: none; }
+
+.universeSlide {
+  flex: none;
+  width: 100%;
+  scroll-snap-align: start;
+}
+
+.universeCard {
+  margin-bottom: 0;
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: background 0.2s;
+}
+.dotActive {
+  background: var(--text-primary);
+}
+
 .cardHead {
   display: flex;
   align-items: center;
