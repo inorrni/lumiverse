@@ -11,7 +11,7 @@ import { Planet, Constellation } from '../components/ui/Celestial'
 import UniverseMap from '../components/feature/universe/UniverseMap'
 import TodayRow from '../components/feature/today/TodayRow'
 import { useGoals } from '../store/GoalStore'
-import { todayISO, todayLabel } from '../lib/date'
+import { todayLabel } from '../lib/date'
 import styles from './DashboardPage.module.css'
 
 const CONSTELLATION_MIN = 14
@@ -21,11 +21,10 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const { goals } = useGoals()
   const goNew = () => navigate('/mode')
-  const today = todayISO()
 
   const allSteps = goals.flatMap((g) => g.steps)
   const totalPlanets = allSteps.length
-  const doneToday = allSteps.filter((s) => s.lastCheck === today).length
+  const doneToday = allSteps.filter((s) => s.checkedToday).length
   const featured = goals[0]
   const canConstellation = featured && featured.stars >= CONSTELLATION_MIN
 
@@ -103,7 +102,7 @@ export default function DashboardPage() {
               key={s.id}
               title={s.title}
               sub={`${featured.title} · 별 ${s.stars}개`}
-              done={s.lastCheck === today}
+              done={s.checkedToday}
               count="0 / 1"
               last={i === arr.length - 1}
             />

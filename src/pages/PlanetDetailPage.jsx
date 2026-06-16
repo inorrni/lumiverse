@@ -9,7 +9,6 @@ import ClarityBar from '../components/ui/ClarityBar'
 import CheckRow from '../components/feature/today/CheckRow'
 import { Planet, BlackHole } from '../components/ui/Celestial'
 import { useGoals } from '../store/GoalStore'
-import { todayISO } from '../lib/date'
 import styles from './PlanetDetailPage.module.css'
 
 const INTENSITY = [{ key: 'gentle', label: '살살' }, { key: 'sparta', label: '스파르타' }]
@@ -19,12 +18,11 @@ export default function PlanetDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { goals, toggleStarToday, addStar, setGoalMode } = useGoals()
-  const today = todayISO()
 
   const goal = goals.find((g) => g.id === id)
   if (!goal) return <Navigate to="/app" replace />
 
-  const doneToday = goal.steps.filter((s) => s.lastCheck === today).length
+  const doneToday = goal.steps.filter((s) => s.checkedToday).length
 
   return (
     <AppScreen padTop={22} seed={51} density={70} nav={<BottomNav />}>
@@ -64,7 +62,7 @@ export default function PlanetDetailPage() {
             key={s.id}
             title={s.title}
             sub={s.detail}
-            done={s.lastCheck === today}
+            done={s.checkedToday}
             count={`${s.done}/${s.stars}`}
             onToggle={() => toggleStarToday(goal.id, s.id)}
             last={i === goal.steps.length - 1}

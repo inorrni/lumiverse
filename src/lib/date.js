@@ -22,3 +22,24 @@ export function daysUntil(dday) {
   const diff = Math.ceil((new Date(dday).getTime() - new Date(todayISO()).getTime()) / DAY)
   return diff > 0 ? diff : null
 }
+
+// 'YYYY-MM-DD' 에 n일을 더한 로컬 날짜 문자열.
+export function addDaysISO(iso, n) {
+  const [y, m, d] = iso.split('-').map(Number)
+  const dt = new Date(y, m - 1, d + n)
+  return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`
+}
+
+// [startISO, endISO] 양끝 포함 날짜 배열(로컬). end < start 면 빈 배열.
+export function enumerateDatesISO(startISO, endISO) {
+  const out = []
+  const [sy, sm, sd] = startISO.split('-').map(Number)
+  const [ey, em, ed] = endISO.split('-').map(Number)
+  const cur = new Date(sy, sm - 1, sd)
+  const end = new Date(ey, em - 1, ed)
+  while (cur <= end) {
+    out.push(`${cur.getFullYear()}-${pad(cur.getMonth() + 1)}-${pad(cur.getDate())}`)
+    cur.setDate(cur.getDate() + 1)
+  }
+  return out
+}
