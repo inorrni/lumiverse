@@ -1,0 +1,21 @@
+.bar {
+  display: flex;
+  gap: 3px;
+  width: 100%;
+}
+
+.seg {
+  flex: 1;
+  height: 9px;
+  border-radius: 1.5px;
+  border: 1px solid var(--line-soft);
+  background: transparent;
+}
+
+.on {
+  background: var(--paper);
+}
+
+/* 갱지 카드 위에 올릴 때 (잉크 톤) */
+.ink .seg { border-color: var(--paper-line); }
+.ink .on { background: var(--paper-ink); }

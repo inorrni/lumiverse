@@ -1,0 +1,46 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch-min);   /* 터치 타깃 44px↑ */
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);     /* 16px — 모바일 가독 */
+  font-weight: var(--font-bold);
+  letter-spacing: 0.01em;
+  text-align: center;
+  transition: transform 0.12s ease, opacity 0.12s ease, background 0.12s ease;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+/* 갱지 솔리드 — 주 액션 */
+.primary {
+  background: var(--paper);
+  color: var(--paper-ink);
+  box-shadow: var(--shadow-md);
+}
+
+/* 잉크 보더 고스트 — 보조 액션 */
+.ghost {
+  border: 1px solid var(--line);
+  color: var(--text-hi);
+}
+
+/* 흐린 갱지 — 비활성 느낌의 채워진 버튼 */
+.dim {
+  background: rgba(230, 221, 202, 0.26);
+  color: rgba(23, 19, 16, 0.78);
+}

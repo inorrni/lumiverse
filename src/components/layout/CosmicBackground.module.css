@@ -1,0 +1,32 @@
+.bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--bg);
+}
+
+.stars,
+.starsBig {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: var(--radius-full);
+}
+.stars { width: 1px; height: 1px; }
+.starsBig { width: 2px; height: 2px; }
+
+.grain {
+  position: absolute;
+  inset: 0;
+  background-image: var(--grain-url);
+  background-size: 200px;
+  opacity: 0.06;
+  mix-blend-mode: screen;
+}
+
+.nebula {
+  position: absolute;
+  opacity: 0.5;
+  object-fit: contain;
+}

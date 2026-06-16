@@ -1,0 +1,77 @@
+.title {
+  margin: var(--space-3) 0 var(--space-6);
+  font-family: var(--font-serif);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-xl);
+  line-height: 1.38;
+  letter-spacing: -0.01em;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.counter {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-low);
+}
+
+/* 별 개수(=일수) 미리보기 */
+.preview {
+  text-align: center;
+  margin: var(--space-8) 0 0;
+}
+
+.count {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.countNum {
+  font-family: var(--font-serif);
+  font-size: 56px;
+  font-weight: var(--font-semibold);
+  line-height: 1;
+}
+
+.countUnit {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+}
+
+.stars {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+  opacity: 0.7;
+}
+
+.note {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  margin-top: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-normal);
+}
+
+.spacer {
+  flex: 1;
+  min-height: var(--space-6);
+}

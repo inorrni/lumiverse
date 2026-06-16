@@ -1,0 +1,77 @@
+.title {
+  margin: 0 0 var(--space-1);
+  font-family: var(--font-serif);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-xl);
+}
+
+.account {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-low);
+  margin-bottom: var(--space-5);
+}
+
+.group {
+  margin: var(--space-2) 0 var(--space-6);
+}
+
+.row,
+.linkRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.last { border-bottom: none; }
+
+.rowLabel {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.chevron { color: var(--text-low); }
+
+.version {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-low);
+}
+
+.swatches {
+  display: flex;
+  gap: var(--space-4);
+  margin: var(--space-3) 0 var(--space-6);
+}
+
+.swatchWrap { text-align: center; }
+
+.swatch {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-lg);
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+}
+
+.swatchInk { background: radial-gradient(circle at 35% 30%, #211d18, var(--ink-0)); }
+.swatchPaper { background: linear-gradient(160deg, var(--paper), var(--paper-deep)); }
+.swatchOn { border: 1.6px solid var(--text-hi); }
+
+.swatchLabel {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-low);
+  margin-top: var(--space-2);
+}
+.swatchLabelOn { color: var(--text-hi); }
+
+.spacer {
+  flex: 1;
+  min-height: var(--space-6);
+}
