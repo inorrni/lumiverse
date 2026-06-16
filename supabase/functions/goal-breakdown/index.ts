@@ -1,0 +1,152 @@
+// goal-breakdown — 목표+디데이+강도 → 세부목표(행성) 3~5개 + 대표 투두 패턴.
+// 아키텍처 v4 §5-2. 별(날짜별 투두)은 LLM이 다 만들지 않고 todo_pattern 만 반환,
+// 앱이 due_date 별로 인스턴스화한다(토큰 절약).
+//
+// 호출: supabase.functions.invoke('goal-breakdown', { body: {...} }) — JWT 자동 첨부.
+// 캐시: 동일 입력(input_hash)은 LLM 호출 없이 llm_cache 에서 반환.
+// rate limit: 사용자당 최근 1시간 분해 호출 수 상한(최소 가드).
+
+import { createClient } from 'jsr:@supabase/supabase-js@2'
+import { corsHeaders } from '../_shared/cors.ts'
+import { chatJSON } from '../_shared/llm.ts'
+
+const RATE_LIMIT_PER_HOUR = 30
+
+interface BreakdownInput {
+  goal: string
+  galaxy_name?: string
+  dday_days?: number
+  intensity?: 'easy' | 'normal' | 'spartan'
+}
+
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  })
+
+async function sha256Hex(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+function buildMessages(input: BreakdownInput) {
+  const system = `You are a goal decomposition assistant for Lumiverse, a goal-management app where each action expands the user's own universe.
+Universe metaphor: a goal = "galaxy", sub-goals = "planets", each day's todo = a "star".
+
+Return ONLY JSON of this exact shape:
+{
+  "planets": [
+    { "name": string, "symbol": string, "todo_pattern": [ { "title": string } ] }
+  ],
+  "galaxy_message": string
+}
+Rules:
+- planets: exactly 3 to 5 items
+- symbol: a single emoji representing the planet
+- todo_pattern: 1 to 3 representative daily todos that will be repeated across the period
+- intensity 'easy' = lighter load, lower difficulty, more slack / 'spartan' = dense, higher difficulty
+- All text MUST be in Korean
+- galaxy_message: one calm encouraging sentence (no excessive cheerfulness, no emoji)`
+
+  const user = JSON.stringify({
+    goal: input.goal,
+    galaxy_name: input.galaxy_name ?? input.goal,
+    dday_days: input.dday_days ?? null,
+    intensity: input.intensity ?? 'normal',
+  })
+
+  return [
+    { role: 'system' as const, content: system },
+    { role: 'user' as const, content: user },
+  ]
+}
+
+// 응답 검증 — planets 3~5, 각 planet name + todo_pattern 보장.
+function validate(parsed: unknown): { planets: unknown[]; galaxy_message: string } {
+  const obj = parsed as Record<string, unknown>
+  const planets = Array.isArray(obj?.planets) ? obj.planets : []
+  if (planets.length < 3 || planets.length > 5) {
+    throw new Error(`planets must be 3~5, got ${planets.length}`)
+  }
+  for (const p of planets as Record<string, unknown>[]) {
+    if (!p?.name || !Array.isArray(p?.todo_pattern) || p.todo_pattern.length === 0) {
+      throw new Error('each planet needs name and non-empty todo_pattern')
+    }
+  }
+  return {
+    planets,
+    galaxy_message: typeof obj?.galaxy_message === 'string' ? obj.galaxy_message : '',
+  }
+}
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
+  if (req.method !== 'POST') return json({ error: 'method not allowed' }, 405)
+
+  // 사용자 JWT 로 클라이언트 생성 — RLS 가 llm_cache 를 본인 것으로 제한.
+  const authHeader = req.headers.get('Authorization') ?? ''
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_ANON_KEY')!,
+    { global: { headers: { Authorization: authHeader } } },
+  )
+
+  const {
+    data: { user },
+    error: userErr,
+  } = await supabase.auth.getUser()
+  if (userErr || !user) return json({ error: 'unauthorized' }, 401)
+
+  let input: BreakdownInput
+  try {
+    input = await req.json()
+  } catch {
+    return json({ error: 'invalid json body' }, 400)
+  }
+  if (!input?.goal || !input.goal.trim()) return json({ error: 'goal is required' }, 400)
+
+  const intensity = input.intensity ?? 'normal'
+  const inputHash = await sha256Hex(
+    `${input.goal.trim()}|${input.dday_days ?? ''}|${intensity}`,
+  )
+
+  // 1) 캐시 조회
+  const { data: cached } = await supabase
+    .from('lumiverse_llm_cache')
+    .select('response')
+    .eq('trigger', 'goal_breakdown')
+    .eq('input_hash', inputHash)
+    .maybeSingle()
+  if (cached?.response) return json({ ...cached.response, cached: true })
+
+  // 2) rate limit (최근 1시간 호출 수)
+  const since = new Date(Date.now() - 3600_000).toISOString()
+  const { count } = await supabase
+    .from('lumiverse_llm_cache')
+    .select('id', { count: 'exact', head: true })
+    .eq('trigger', 'goal_breakdown')
+    .gte('created_at', since)
+  if ((count ?? 0) >= RATE_LIMIT_PER_HOUR) {
+    return json({ error: 'too many requests' }, 429)
+  }
+
+  // 3) LLM 호출 + 검증
+  let result: { planets: unknown[]; galaxy_message: string }
+  try {
+    const parsed = await chatJSON(buildMessages(input))
+    result = validate(parsed)
+  } catch (e) {
+    console.error('goal-breakdown LLM error:', e)
+    return json({ error: 'breakdown failed' }, 502)
+  }
+
+  // 4) 캐시 저장 (실패해도 응답은 반환)
+  await supabase
+    .from('lumiverse_llm_cache')
+    .insert({ user_id: user.id, trigger: 'goal_breakdown', input_hash: inputHash, response: result })
+
+  return json({ ...result, cached: false })
+})
