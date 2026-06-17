@@ -12,6 +12,7 @@ import { Planet, Constellation } from '../components/ui/Celestial'
 import UniverseMap from '../components/feature/universe/UniverseMap'
 import TodayRow from '../components/feature/today/TodayRow'
 import { useGoals } from '../store/GoalStore'
+import { computeMidCheck, STATE_META } from '../lib/midcheck'
 import { todayLabel } from '../lib/date'
 import styles from './DashboardPage.module.css'
 
@@ -20,7 +21,7 @@ const CONSTELLATION_MIN = 14
 // 6 · 대시보드 — 내 우주. 목표 0개면 빈 상태(첫 목표 유도).
 export default function DashboardPage() {
   const navigate = useNavigate()
-  const { goals } = useGoals()
+  const { goals, historyOf } = useGoals()
   const goNew = () => navigate('/mode')
   const carouselRef = useRef(null)
   const [activeIdx, setActiveIdx] = useState(0)
@@ -40,6 +41,9 @@ export default function DashboardPage() {
   const doneToday = allSteps.filter((s) => s.checkedToday).length
   const featured = goals[0]
   const canConstellation = featured && featured.stars >= CONSTELLATION_MIN
+  // 중간점검 카드 — 현재 캐러셀 활성 목표 기준(universe map 목표와 매칭)
+  const checkGoal = goals[activeIdx] || featured
+  const checkMc = checkGoal ? computeMidCheck(historyOf(checkGoal.id)) : null
 
   return (
     <AppScreen padTop={20} seed={5} nav={<BottomNav />}>
@@ -153,7 +157,6 @@ export default function DashboardPage() {
               title={s.title}
               sub={`${featured.title} · 별 ${s.stars}개`}
               done={s.checkedToday}
-              count="0 / 1"
               last={i === arr.length - 1}
             />
           ))}
@@ -161,16 +164,22 @@ export default function DashboardPage() {
         </Card>
       )}
 
-      {featured && (
+      {checkGoal && (
         <Card className={styles.midcheck}>
           <div className={styles.midHead}>
             <span className={styles.headLeft}><Sparkle size={10} /><Kicker tone="hi">Mid-Check</Kicker></span>
-            <span className={styles.midDate}>기록 3일 이상부터</span>
+            <span className={styles.midDate}>
+              {checkMc ? `${STATE_META[checkMc.state].label} · 전체 ${checkGoal.clarity}%` : null}
+            </span>
           </div>
           <div className={styles.midBody}>
             <Planet size={40} />
-            <p className={styles.midMsg}>좋은 출발이에요, stargazer.<br />며칠 쌓이면 페이스를 점검해 줄게요.</p>
-            <Button variant="ghost" className={styles.midBtn} onClick={() => navigate('/app/check')}>결과 보기 →</Button>
+            <p className={styles.midMsg}>
+              {checkGoal.title}의 지금 흐름을<br />항해사가 읽어 줄게요.
+            </p>
+            <Button variant="ghost" className={styles.midBtn} onClick={() => navigate(`/app/check/${checkGoal.id}`)}>
+              결과 보기 →
+            </Button>
           </div>
         </Card>
       )}

@@ -11,6 +11,8 @@ import TodayPage from './pages/TodayPage'
 import UniversePage from './pages/UniversePage'
 import PlanetDetailPage from './pages/PlanetDetailPage'
 import SettingsPage from './pages/SettingsPage'
+import MidCheckPage from './pages/MidCheckPage'
+import UniverseCheckPage from './pages/UniverseCheckPage'
 import ComingSoonPage from './pages/ComingSoonPage'
 
 // 디자인 캔버스(목업 11화면)는 무겁고 개발용이라 지연 로드한다.
@@ -36,9 +38,11 @@ export default function App() {
         <Route path="/app/universe" element={<UniversePage />} />
         <Route path="/app/planet/:id" element={<PlanetDetailPage />} />
         <Route path="/app/settings" element={<SettingsPage />} />
+        {/* 점검 — 탭은 우주 전체 자기 인사이트, :id 는 목표별 중간점검 */}
+        <Route path="/app/check" element={<UniverseCheckPage />} />
+        <Route path="/app/check/:id" element={<MidCheckPage />} />
         {/* Should — 추후 구현 */}
         <Route path="/app/blackhole" element={<ComingSoonPage title="블랙홀 — 준비 중" />} />
-        <Route path="/app/check" element={<ComingSoonPage title="중간 점검 — 준비 중" />} />
       </Route>
 
       {/* 디자인 레퍼런스 캔버스 */}

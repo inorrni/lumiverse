@@ -38,3 +38,56 @@ export async function breakdownGoal(goal, { days, intensity, exclude, count } = 
 
   return { goal: text, days: days ?? null, galaxy_message: data?.galaxy_message || '', steps }
 }
+
+// AI 중간점검 — Edge Function(mid-check) 호출. 판정(state/verdict)은 클라이언트가 §5-3 규칙으로
+// 정하고, 함수는 그 판정에 맞는 reason/message + (보완 계열) 추천 행성만 생성한다.
+// args: { goalName, intensity, state, verdict,
+//         stats:{completionPct,overallPct,daysTracked,streak,failStreak},
+//         samples:[{title,review,done}], existingPlanets:[name] }
+export async function fetchMidCheck({ goalName, intensity, state, verdict, stats, samples, existingPlanets } = {}) {
+  const name = (goalName || '').trim()
+  if (!name) throw new Error('목표가 비어 있어요.')
+
+  const { data, error } = await supabase.functions.invoke('mid-check', {
+    body: {
+      goal_name: name,
+      intensity: intensity || 'normal',
+      state: state || 'plateau',
+      verdict: verdict || 'supplement',
+      stats: stats || {},
+      samples: Array.isArray(samples) ? samples : [],
+      existing_planets: Array.isArray(existingPlanets) ? existingPlanets : [],
+    },
+  })
+  if (error) throw error
+
+  return {
+    verdict: data?.verdict || verdict || 'supplement',
+    reason: data?.reason || '',
+    message: data?.message || '',
+    recommendation: data?.recommendation || null,
+    cached: !!data?.cached,
+  }
+}
+
+// 내 우주 전체 점검(자기 인사이트) — Edge Function(self-insight) 호출.
+// 모든 목표의 전체 내용(세부목표·진행·한줄평)을 교차 종합해 사용자를 판단.
+// args: { goals:[{name,intensity,state,completion_pct,sub_goals,reviews}], totals }
+export async function fetchSelfInsight({ goals, totals } = {}) {
+  const { data, error } = await supabase.functions.invoke('self-insight', {
+    body: {
+      goals: Array.isArray(goals) ? goals : [],
+      totals: totals || {},
+    },
+  })
+  if (error) throw error
+
+  return {
+    summary: data?.summary || '',
+    doingWell: Array.isArray(data?.doing_well) ? data.doing_well : [],
+    frequentWords: Array.isArray(data?.frequent_words) ? data.frequent_words : [],
+    dislikes: Array.isArray(data?.dislikes) ? data.dislikes : [],
+    message: data?.message || '',
+    cached: !!data?.cached,
+  }
+}

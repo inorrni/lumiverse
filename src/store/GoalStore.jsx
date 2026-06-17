@@ -18,7 +18,9 @@ const modeToIntensity = (mode) => (mode === 'sparta' ? 'spartan' : 'easy')
 // 원본 galaxy(+planets+stars) → 화면용 goal/steps 형태.
 function deriveGoal(g) {
   const today = todayISO()
-  const planets = [...(g.planets || [])].sort((a, b) => a.order_idx - b.order_idx)
+  const planets = [...(g.planets || [])]
+    .filter((p) => p.status !== 'blackhole') // 블랙홀 보관 행성은 활성 화면에서 제외
+    .sort((a, b) => a.order_idx - b.order_idx)
   const steps = planets.map((p) => {
     const stars = [...(p.stars || [])].sort((a, b) => a.due_date.localeCompare(b.due_date))
     const done = stars.filter((s) => s.done).length
@@ -33,6 +35,7 @@ function deriveGoal(g) {
       clarity: planetClarity(stars),
       todayStarId: todayStar?.id ?? null,
       checkedToday: !!todayStar?.done,
+      todayReview: todayStar?.review ?? '', // 오늘 별의 한줄평(입력칸 초기값)
     }
   })
   return {
@@ -106,40 +109,44 @@ export function GoalProvider({ children }) {
   )
 
   // 오늘의 별 체크 토글 — 해당 행성의 오늘(due_date) 별 done 을 뒤집는다.
+  // 대상 별/다음 상태는 rows 에서 동기적으로 구한다(setRows 업데이터는 나중에 실행되므로
+  // 그 안에서 잡은 값은 이 함수 흐름에서 아직 null 이다 → DB write 가 skip 되던 버그).
   // 낙관적 업데이트 후 DB 반영, 실패 시 reload 로 복구.
   const toggleStarToday = useCallback(
     async (galaxyId, planetId) => {
       const today = todayISO()
-      let starId = null
-      let nextDone = null
+      const planet = rows.find((g) => g.id === galaxyId)?.planets?.find((p) => p.id === planetId)
+      const star = (planet?.stars || []).find((s) => s.due_date === today)
+      if (!star) return // 오늘 배정된 별 없음
+      const starId = star.id
+      const nextDone = !star.done
+      const doneAt = nextDone ? new Date().toISOString() : null
       setRows((prev) =>
-        prev.map((g) => {
-          if (g.id !== galaxyId) return g
-          return {
-            ...g,
-            planets: (g.planets || []).map((p) => {
-              if (p.id !== planetId) return p
-              return {
-                ...p,
-                stars: (p.stars || []).map((s) => {
-                  if (s.due_date !== today) return s
-                  starId = s.id
-                  nextDone = !s.done
-                  return { ...s, done: nextDone, done_at: nextDone ? new Date().toISOString() : null }
-                }),
-              }
-            }),
-          }
-        }),
+        prev.map((g) =>
+          g.id !== galaxyId
+            ? g
+            : {
+                ...g,
+                planets: (g.planets || []).map((p) =>
+                  p.id !== planetId
+                    ? p
+                    : {
+                        ...p,
+                        stars: (p.stars || []).map((s) =>
+                          s.id === starId ? { ...s, done: nextDone, done_at: doneAt } : s,
+                        ),
+                      },
+                ),
+              },
+        ),
       )
-      if (!starId) return // 오늘 배정된 별 없음
       const { error } = await supabase
         .from('lumiverse_stars')
-        .update({ done: nextDone, done_at: nextDone ? new Date().toISOString() : null })
+        .update({ done: nextDone, done_at: doneAt })
         .eq('id', starId)
       if (error) await reload()
     },
-    [reload],
+    [rows, reload],
   )
 
   // 별 추가 — 행성에 오늘 날짜 별을 1개 더한다(행성상세 [+별 추가]).
@@ -167,6 +174,117 @@ export function GoalProvider({ children }) {
       )
     },
     [rows],
+  )
+
+  // 별 한줄평 저장 — 중간점검 개인화 입력. 낙관적 업데이트 후 DB write.
+  const setStarReview = useCallback(
+    async (galaxyId, planetId, starId, review) => {
+      const text = (review || '').trim()
+      setRows((prev) =>
+        prev.map((g) =>
+          g.id !== galaxyId
+            ? g
+            : {
+                ...g,
+                planets: (g.planets || []).map((p) =>
+                  p.id !== planetId
+                    ? p
+                    : {
+                        ...p,
+                        stars: (p.stars || []).map((s) => (s.id === starId ? { ...s, review: text } : s)),
+                      },
+                ),
+              },
+        ),
+      )
+      const { error } = await supabase.from('lumiverse_stars').update({ review: text }).eq('id', starId)
+      if (error) await reload()
+    },
+    [reload],
+  )
+
+  // 한 목표의 별 이력 평탄화 — 중간점검 통계/한줄평 주입용. rows(원본)에서 직접.
+  const historyOf = useCallback(
+    (galaxyId) => {
+      const g = rows.find((x) => x.id === galaxyId)
+      if (!g) return []
+      return (g.planets || [])
+        .filter((p) => p.status !== 'blackhole') // 블랙홀 행성은 점검 통계에서도 제외(화면과 일치)
+        .flatMap((p) =>
+        (p.stars || []).map((s) => ({
+          due_date: s.due_date,
+          done: !!s.done,
+          review: s.review ?? '',
+          title: s.title || p.name || '',
+        })),
+      )
+    },
+    [rows],
+  )
+
+  // 중간점검 결과 저장 — 점검 1회 = 1행(이력·학습 자산).
+  const saveMidCheck = useCallback(async (galaxyId, rec) => {
+    const { error } = await supabase.from('lumiverse_midchecks').insert({
+      galaxy_id: galaxyId,
+      state: rec.state,
+      verdict: rec.verdict,
+      reason: rec.reason ?? '',
+      message: rec.message ?? '',
+      completion_pct: rec.completionPct ?? null,
+      overall_pct: rec.overallPct ?? null,
+      streak: rec.streak ?? null,
+    })
+    if (error) console.error('saveMidCheck:', error.message)
+  }, [])
+
+  // 행성 블랙홀 보관 — 보완 시 미선택 행성. status 토글(보존), 활성 화면에서 숨김.
+  const blackholePlanet = useCallback(
+    async (galaxyId, planetId) => {
+      setRows((prev) =>
+        prev.map((g) =>
+          g.id !== galaxyId
+            ? g
+            : {
+                ...g,
+                planets: (g.planets || []).map((p) =>
+                  p.id === planetId ? { ...p, status: 'blackhole' } : p,
+                ),
+              },
+        ),
+      )
+      const { error } = await supabase
+        .from('lumiverse_planets')
+        .update({ status: 'blackhole' })
+        .eq('id', planetId)
+      if (error) await reload()
+    },
+    [reload],
+  )
+
+  // 행성 추가 — 보완 추천 행성. 오늘~디데이 기간에 todo_pattern 으로 별을 인스턴스화.
+  const addPlanet = useCallback(
+    async (galaxyId, { name, symbol = null, todo_pattern = null }) => {
+      const g = rows.find((x) => x.id === galaxyId)
+      if (!g) return
+      const start = todayISO()
+      const end = g.dday_end || start
+      const orderIdx = Math.max(-1, ...(g.planets || []).map((p) => p.order_idx ?? 0)) + 1
+      const { data: planet, error: pErr } = await supabase
+        .from('lumiverse_planets')
+        .insert({ galaxy_id: galaxyId, name, symbol, order_idx: orderIdx })
+        .select()
+        .single()
+      if (pErr) return
+      const stars = instantiateStars(todo_pattern, start, end, name).map((s) => ({
+        planet_id: planet.id,
+        galaxy_id: galaxyId,
+        due_date: s.due_date,
+        title: s.title,
+      }))
+      if (stars.length) await supabase.from('lumiverse_stars').insert(stars)
+      await reload()
+    },
+    [rows, reload],
   )
 
   // 강도(모드) 변경 — galaxies.intensity 갱신.
@@ -199,8 +317,8 @@ export function GoalProvider({ children }) {
   }, [userId, reload])
 
   const value = useMemo(
-    () => ({ goals, loading, reload, addGoal, toggleStarToday, addStar, setGoalMode, removeGoal, clearGoals }),
-    [goals, loading, reload, addGoal, toggleStarToday, addStar, setGoalMode, removeGoal, clearGoals],
+    () => ({ goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, historyOf, saveMidCheck, blackholePlanet, addPlanet, setGoalMode, removeGoal, clearGoals }),
+    [goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, historyOf, saveMidCheck, blackholePlanet, addPlanet, setGoalMode, removeGoal, clearGoals],
   )
 
   return <GoalContext.Provider value={value}>{children}</GoalContext.Provider>

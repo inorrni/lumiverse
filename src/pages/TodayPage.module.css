@@ -12,6 +12,32 @@
   margin-bottom: var(--space-4);
 }
 
+/* 별 한 줄(체크 + 회고) 묶음 — 갱지 카드 안에서 항목 사이 잉크 구분선 */
+.item {
+  border-bottom: 1px solid var(--paper-line);
+}
+.itemLast {
+  border-bottom: none;
+}
+
+/* 한 줄 회고 입력칸 — 별 본문(아이콘 21 + gap 12) 아래로 들여쓰기, 잉크 톤 */
+.reviewInput {
+  width: 100%;
+  margin: 0 0 var(--space-4);
+  padding: var(--space-2) 0 var(--space-2) calc(21px + var(--space-3));
+  border: none;
+  border-bottom: 1px dashed var(--paper-line);
+  background: transparent;
+  color: var(--paper-ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+.reviewInput::placeholder { color: var(--paper-mid); opacity: 0.65; }
+.reviewInput:focus {
+  outline: none;
+  border-bottom-color: var(--paper-ink);
+}
+
 .emptyDone {
   padding: var(--space-6) 0;
   text-align: center;
@@ -46,6 +72,25 @@
   margin-top: var(--space-2);
   line-height: var(--line-normal);
 }
+
+/* 별 + 한줄평을 한 항목으로 묶고, 구분선은 항목 래퍼가 갖는다(CheckRow는 last 로 자체 보더 제거). */
+.item { border-bottom: 1px solid var(--paper-line); }
+.itemLast { border-bottom: none; }
+
+/* 한 줄 회고 입력 — 체크한 별 제목 아래로 들여쓰기, 갱지 톤. */
+.reviewInput {
+  display: block;
+  width: 100%;
+  margin-bottom: var(--space-4);
+  padding: 0 0 var(--space-1) calc(21px + var(--space-3));
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--paper-ink);
+}
+.reviewInput::placeholder { color: var(--paper-mid); }
 
 .spacer {
   flex: 1;
