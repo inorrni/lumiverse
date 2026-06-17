@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react'
 import RequireAuth from './components/RequireAuth'
 import LandingPage from './pages/LandingPage'
 import AuthPage from './pages/AuthPage'
+import WelcomePage from './pages/WelcomePage'
 import ModePage from './pages/ModePage'
 import GoalInputPage from './pages/GoalInputPage'
 import PlanPage from './pages/PlanPage'
@@ -27,6 +28,8 @@ export default function App() {
 
       {/* 보호 라우트 — 세션 없으면 /login 으로. (온보딩 + 메인 앱) */}
       <Route element={<RequireAuth />}>
+        {/* 가입 후 닉네임 설정 → 온보딩 */}
+        <Route path="/welcome" element={<WelcomePage />} />
         {/* 온보딩: 모드 → 목표 → 경로 설계(AI분해 또는 직접입력) */}
         <Route path="/mode" element={<ModePage />} />
         <Route path="/goal" element={<GoalInputPage />} />

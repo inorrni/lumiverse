@@ -22,6 +22,8 @@ function toUser(session) {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [ready, setReady] = useState(false) // 최초 세션 복원 완료 여부
+  const [nickname, setNickname] = useState(null) // 프로필 닉네임(null=미설정)
+  const [profileReady, setProfileReady] = useState(false) // 닉네임 조회 완료 여부
 
   useEffect(() => {
     let active = true
@@ -38,6 +40,42 @@ export function AuthProvider({ children }) {
       sub.subscription.unsubscribe()
     }
   }, [])
+
+  // 로그인되면 프로필 닉네임 조회(미로그인 시 초기화).
+  const userId = user?.id ?? null
+  useEffect(() => {
+    let active = true
+    if (!userId) {
+      setNickname(null)
+      setProfileReady(false)
+      return
+    }
+    setProfileReady(false)
+    supabase
+      .from('lumiverse_profiles')
+      .select('nickname')
+      .eq('id', userId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!active) return
+        const n = (data?.nickname || '').trim()
+        setNickname(n || null)
+        setProfileReady(true)
+      })
+    return () => { active = false }
+  }, [userId])
+
+  // 닉네임 설정/변경 — 프로필 갱신 후 로컬 반영.
+  const updateNickname = useCallback(
+    async (value) => {
+      const text = (value || '').trim()
+      if (!userId || !text) return { error: new Error('닉네임이 비어 있어요.') }
+      const { error } = await supabase.from('lumiverse_profiles').update({ nickname: text }).eq('id', userId)
+      if (!error) setNickname(text)
+      return { error: error ?? null }
+    },
+    [userId],
+  )
 
   // 이메일 로그인 — 없는 계정이면 가입으로 폴백(단일 "계속하기" UX).
   // 반환: { error } (성공 시 error=null). 호출부에서 메시지 표시.
@@ -69,7 +107,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, ready, login, loginWithKakao, logout }}>
+    <AuthContext.Provider value={{ user, ready, nickname, profileReady, updateNickname, login, loginWithKakao, logout }}>
       {children}
     </AuthContext.Provider>
   )
