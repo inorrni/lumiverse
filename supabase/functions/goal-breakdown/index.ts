@@ -138,13 +138,13 @@ Deno.serve(async (req) => {
     .sort()
   input.exclude = exclude
   // count 정규화 — 3~5 범위만 인정, 그 외/미지정은 자유(3~5).
-  const count =
+  const planetCount =
     typeof input.count === 'number' && input.count >= 3 && input.count <= 5
       ? Math.round(input.count)
       : undefined
-  input.count = count
+  input.count = planetCount
   const inputHash = await sha256Hex(
-    `${input.goal.trim()}|${input.dday_days ?? ''}|${intensity}|${exclude.join('§')}|${count ?? ''}`,
+    `${input.goal.trim()}|${input.dday_days ?? ''}|${intensity}|${exclude.join('§')}|${planetCount ?? ''}`,
   )
 
   // 1) 캐시 조회
