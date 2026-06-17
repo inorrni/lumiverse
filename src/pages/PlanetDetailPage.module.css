@@ -6,6 +6,9 @@
 }
 
 .hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
   margin: var(--space-2) 0 var(--space-5);
 }
@@ -36,6 +39,26 @@
   flex: none;
 }
 
+/* ── 오솔길 트레일 ───────────────────────── */
+.trailHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.trailCount {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.trail {
+  margin-bottom: var(--space-6);
+  padding: 0 var(--space-2);
+}
+
+/* ── 기존 체크리스트 (goal 레벨 fallback) ── */
 .starsHead {
   display: flex;
   align-items: baseline;

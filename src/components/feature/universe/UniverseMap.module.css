@@ -29,6 +29,10 @@
   font-family: monospace;
   transform: translate(-50%, -50%);
 }
+:global([data-theme='paper']) .pixelStar {
+  color: #2a1f0e;
+  opacity: 0.55;
+}
 
 /* 행성 — 타원 궤도 위 절대 배치. transform으로 자기 자신 기준 중앙 정렬 */
 .planet {

@@ -40,7 +40,7 @@ export default function UniverseMap({ steps, onAdd, onSelect }) {
             key={s.id}
             className={styles.planet}
             style={{ left: `${lx}%`, top: `${ly}%` }}
-            onClick={() => onSelect?.()}
+            onClick={() => onSelect?.(s.id)}
           >
             <Planet size={size} />
             <div className={styles.name}>{s.title}</div>
@@ -49,11 +49,6 @@ export default function UniverseMap({ steps, onAdd, onSelect }) {
         )
       })}
 
-      {/* 새 목표 추가 — 궤도 중심에 배치 */}
-      <button className={styles.add} onClick={onAdd}>
-        <span className={styles.addCircle} aria-hidden="true">＋</span>
-        <span className={styles.addLabel}>새 목표</span>
-      </button>
     </div>
   )
 }
