@@ -1,0 +1,231 @@
+.title {
+  margin: var(--space-3) 0 var(--space-4);
+  font-family: var(--font-serif);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-xl);
+}
+
+.lead {
+  margin: calc(-1 * var(--space-2)) 0 var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-normal);
+}
+
+/* 상태 레이블 + 전체 진행률 */
+.stateRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+.stateLabel {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-hi);
+}
+.progressPct {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+.resultCard { margin-top: var(--space-5); }
+
+/* 판정 카드(갱지) — 배지 + 판단/이유 그리드 */
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.badge {
+  flex: none;
+  background: var(--paper-ink);
+  color: var(--paper);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+  letter-spacing: 0.1em;
+}
+.badgeTitle {
+  font-size: var(--text-base);
+  font-weight: var(--font-bold);
+  color: var(--paper-ink);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  row-gap: var(--space-2);
+  column-gap: var(--space-2);
+  align-items: start;
+  font-size: var(--text-sm);
+  color: var(--paper-mid);
+}
+.grid :global(.kicker) { align-self: center; color: var(--paper-mid); }
+.verdict {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--paper-ink);
+}
+.verdictHint { color: var(--paper-mid); font-size: var(--text-xs); }
+.reason { line-height: var(--line-normal); color: var(--paper-ink); }
+
+/* 항해사 코치 말풍선 */
+.coachRow {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  margin-top: var(--space-5);
+}
+.coachPlanet { position: relative; flex: none; }
+.coachSpark { position: absolute; top: -3px; right: -3px; }
+.bubble {
+  flex: 1;
+  border: 1px solid var(--line);
+  border-radius: 2px 12px 12px 12px;
+  padding: 13px 15px;
+  font-size: var(--text-sm);
+  line-height: var(--line-normal);
+  color: var(--text-secondary);
+}
+.coachName {
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  color: var(--text-low);
+}
+
+/* 로딩 */
+.loadingCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-8) 0;
+}
+.spark { color: var(--text-hi); opacity: 0.8; }
+.loadingMsg { font-size: var(--text-sm); color: var(--text-secondary); }
+
+/* 3일 미만 안내 */
+.notReady {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+}
+.notReadyMsg {
+  font-size: var(--text-sm);
+  line-height: var(--line-normal);
+  color: var(--text-secondary);
+}
+
+/* 실패 폴백 안내 */
+.failNote {
+  margin-top: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--text-low);
+  text-align: center;
+}
+.retry {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-hi);
+  font-size: var(--text-xs);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.spacer { flex: 1; min-height: var(--space-6); }
+
+.actions { display: flex; flex-direction: column; gap: var(--space-2); }
+
+/* 보완 선택 리스트 */
+.list { margin: var(--space-2) 0 var(--space-5); }
+.pick {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) 0;
+  border: none;
+  border-bottom: 1px solid var(--paper-line);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  opacity: 0.55;
+}
+.pickOn { opacity: 1; }
+.pickLast { border-bottom: none; }
+.pickBox {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--paper-ink);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+  color: var(--paper);
+  background: transparent;
+}
+.pickOn .pickBox { background: var(--paper-ink); }
+.pickBody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.pickTitle { font-size: var(--text-sm); font-weight: var(--font-bold); color: var(--paper-ink); }
+.pickSub { font-size: var(--text-xs); color: var(--paper-mid); }
+.pickState {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--paper-mid);
+}
+
+/* 마무리 폭파 애니메이션 */
+.boom {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  gap: var(--space-6);
+}
+.boomCore {
+  animation: boomCore 1.2s ease-in forwards;
+  color: var(--text-hi);
+}
+@keyframes boomCore {
+  0% { transform: scale(1); opacity: 1; }
+  35% { transform: scale(1.35); opacity: 1; }
+  60% { transform: scale(0.2); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
+}
+.boomSpark {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  color: var(--text-hi);
+  animation: boomSpark 1s ease-out forwards;
+  transform: rotate(calc(var(--i) * 45deg)) translateY(0);
+  opacity: 0;
+}
+@keyframes boomSpark {
+  0% { opacity: 0; transform: rotate(calc(var(--i) * 45deg)) translateY(0); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(calc(var(--i) * 45deg)) translateY(-90px); }
+}
+.boomMsg {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  animation: fadeIn 0.6s 0.6s both;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

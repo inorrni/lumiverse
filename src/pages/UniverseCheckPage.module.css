@@ -1,0 +1,93 @@
+.title {
+  margin: var(--space-3) 0 var(--space-1);
+  font-family: var(--font-serif);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-xl);
+}
+.sub {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.summaryCard { margin-bottom: var(--space-5); }
+.summary {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  line-height: var(--line-normal);
+  color: var(--paper-ink);
+}
+
+.section { margin-bottom: var(--space-5); }
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  color: var(--text-hi);
+  background: var(--line-soft);
+}
+
+/* 항해사 말풍선 */
+.coachRow {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  margin-top: var(--space-2);
+}
+.coachPlanet { position: relative; flex: none; }
+.coachSpark { position: absolute; top: -3px; right: -3px; }
+.bubble {
+  flex: 1;
+  border: 1px solid var(--line);
+  border-radius: 2px 12px 12px 12px;
+  padding: 13px 15px;
+  font-size: var(--text-sm);
+  line-height: var(--line-normal);
+  color: var(--text-secondary);
+}
+.coachName {
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  color: var(--text-low);
+}
+
+/* 로딩 */
+.loadingCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-8) 0;
+}
+.spark { color: var(--text-hi); opacity: 0.8; }
+.loadingMsg { font-size: var(--text-sm); color: var(--text-secondary); }
+
+.failNote {
+  margin-top: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--text-low);
+  text-align: center;
+}
+.retry {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-hi);
+  font-size: var(--text-xs);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.spacer { flex: 1; min-height: var(--space-6); }

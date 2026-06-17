@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AppScreen from '../components/layout/AppScreen'
 import BottomNav from '../components/layout/BottomNav'
@@ -13,11 +13,41 @@ import { useGoals } from '../store/GoalStore'
 import { todayLabel } from '../lib/date'
 import styles from './TodayPage.module.css'
 
+// 한 줄 회고 입력 — 별 아래에 노출(체크 무관). blur/Enter 시 저장(변경된 경우만).
+function ReviewField({ initial, onSave, autoFocus }) {
+  const [text, setText] = useState(initial || '')
+  useEffect(() => { setText(initial || '') }, [initial])
+  const commit = () => {
+    if ((text || '').trim() !== (initial || '').trim()) onSave(text)
+  }
+  return (
+    <input
+      className={styles.reviewInput}
+      type="text"
+      value={text}
+      maxLength={60}
+      autoFocus={autoFocus}
+      placeholder="한 줄 회고 — 오늘 어땠나요?"
+      onChange={(e) => setText(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur() }}
+    />
+  )
+}
+
 // 8 · 오늘의 투두 (Must 핵심 루프) — 오늘의 별을 체크하면 선명도가 오른다.
 export default function TodayPage() {
   const navigate = useNavigate()
-  const { goals, toggleStarToday } = useGoals()
+  const { goals, toggleStarToday, setStarReview } = useGoals()
   const [doneOnly, setDoneOnly] = useState(false)
+  // 아이콘으로 펼친 회고 입력칸 키 모음 (체크 여부와 무관하게 작성 가능)
+  const [openReview, setOpenReview] = useState(() => new Set())
+  const toggleReview = (key) =>
+    setOpenReview((prev) => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
 
   // 오늘(due_date) 배정된 별만 오늘의 투두로 펼친다.
   const items = goals.flatMap((g) =>
@@ -47,18 +77,36 @@ export default function TodayPage() {
           <div className={styles.progress}>{doneCount} / {total} 완료</div>
 
           <Card variant="paper" pad="4px 18px">
-            {shown.map((i, idx) => (
-              <CheckRow
-                key={`${i.goalId}-${i.step.id}`}
-                ink
-                title={i.step.title}
-                sub={`${i.goalTitle} · 별 ${i.step.stars}개`}
-                done={i.checked}
-                count="0 / 1"
-                onToggle={() => toggleStarToday(i.goalId, i.step.id)}
-                last={idx === shown.length - 1}
-              />
-            ))}
+            {shown.map((i, idx) => {
+              const key = `${i.goalId}-${i.step.id}`
+              const hasReview = !!i.step.todayReview
+              const open = openReview.has(key)
+              return (
+                <div
+                  key={key}
+                  className={`${styles.item} ${idx === shown.length - 1 ? styles.itemLast : ''}`}
+                >
+                  <CheckRow
+                    ink
+                    title={i.step.title}
+                    sub={`${i.goalTitle} · 별 ${i.step.stars}개`}
+                    done={i.checked}
+                    onToggle={() => toggleStarToday(i.goalId, i.step.id)}
+                    onReview={() => toggleReview(key)}
+                    reviewFilled={hasReview}
+                    reviewOpen={open}
+                    last
+                  />
+                  {open && (
+                    <ReviewField
+                      autoFocus={!hasReview}
+                      initial={i.step.todayReview}
+                      onSave={(text) => setStarReview(i.goalId, i.step.id, i.step.todayStarId, text)}
+                    />
+                  )}
+                </div>
+              )
+            })}
             {doneOnly && shown.length === 0 && (
               <div className={styles.emptyDone}>아직 완료한 별이 없어요.</div>
             )}
