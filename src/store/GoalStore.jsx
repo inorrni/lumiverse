@@ -261,6 +261,38 @@ export function GoalProvider({ children }) {
     [reload],
   )
 
+  // 블랙홀 보관함 — 보관된 행성 목록(부모 목표가 active 인 것만). status 별도 조회.
+  const loadBlackholePlanets = useCallback(async () => {
+    if (!userId) return []
+    const { data, error } = await supabase
+      .from('lumiverse_planets')
+      .select('id, name, symbol, created_at, galaxy_id, galaxy:lumiverse_galaxies(name, status)')
+      .eq('status', 'blackhole')
+      .order('created_at', { ascending: false })
+    if (error) throw error
+    return (data || [])
+      .filter((p) => p.galaxy?.status === 'active') // 부모가 블랙홀인 행성은 제외
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        symbol: p.symbol,
+        created_at: p.created_at,
+        galaxyName: p.galaxy?.name || '',
+      }))
+  }, [userId])
+
+  // 행성 복원 — status='active' 로 되돌려 원 소속 목표로 귀속.
+  const restorePlanets = useCallback(
+    async (planetIds) => {
+      const ids = (planetIds || []).filter(Boolean)
+      if (ids.length === 0) return
+      const { error } = await supabase.from('lumiverse_planets').update({ status: 'active' }).in('id', ids)
+      if (error) throw error
+      await reload()
+    },
+    [reload],
+  )
+
   // 행성 추가 — 보완 추천 행성. 오늘~디데이 기간에 todo_pattern 으로 별을 인스턴스화.
   const addPlanet = useCallback(
     async (galaxyId, { name, symbol = null, todo_pattern = null }) => {
@@ -317,8 +349,8 @@ export function GoalProvider({ children }) {
   }, [userId, reload])
 
   const value = useMemo(
-    () => ({ goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, historyOf, saveMidCheck, blackholePlanet, addPlanet, setGoalMode, removeGoal, clearGoals }),
-    [goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, historyOf, saveMidCheck, blackholePlanet, addPlanet, setGoalMode, removeGoal, clearGoals],
+    () => ({ goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, historyOf, saveMidCheck, blackholePlanet, addPlanet, loadBlackholePlanets, restorePlanets, setGoalMode, removeGoal, clearGoals }),
+    [goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, historyOf, saveMidCheck, blackholePlanet, addPlanet, loadBlackholePlanets, restorePlanets, setGoalMode, removeGoal, clearGoals],
   )
 
   return <GoalContext.Provider value={value}>{children}</GoalContext.Provider>
