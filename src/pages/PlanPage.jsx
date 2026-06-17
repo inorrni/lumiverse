@@ -69,11 +69,12 @@ export default function PlanPage() {
   const updateTitle = (id, title) => setPlanets((p) => p.map((x) => (x.id === id ? { ...x, title } : x)))
   const removePlanet = (id) => setPlanets((p) => p.filter((x) => x.id !== id))
 
-  // 다른 추천 받기 — 현재(+이전) 행성 이름을 제외해 다른 분해를 재요청.
+  // 다른 추천 받기 — 현재(+이전) 행성 이름을 제외하고, 현재 행성 개수(3~5 클램프)에 맞춰 재요청.
   const refresh = () => {
     const next = [...new Set([...excluded, ...planets.map((p) => p.title)])]
     setExcluded(next)
-    run(goal, { days, intensity, exclude: next })
+    const count = Math.min(MAX_PLANETS, Math.max(MIN_PLANETS, planets.length))
+    run(goal, { days, intensity, exclude: next, count })
   }
 
   const inRange = planets.length >= MIN_PLANETS && planets.length <= MAX_PLANETS
