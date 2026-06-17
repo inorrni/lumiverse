@@ -153,7 +153,6 @@ export default function DashboardPage() {
               title={s.title}
               sub={`${featured.title} · 별 ${s.stars}개`}
               done={s.checkedToday}
-              count="0 / 1"
               last={i === arr.length - 1}
             />
           ))}

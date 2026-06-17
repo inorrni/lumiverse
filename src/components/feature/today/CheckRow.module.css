@@ -5,13 +5,26 @@
   width: 100%;
   min-height: var(--touch-min);
   padding: var(--space-4) 0;
-  text-align: left;
   border-bottom: 1px solid var(--line-soft);
   color: var(--text-hi);
 }
 
 .last { border-bottom: none; }
-.row:active { opacity: 0.75; }
+
+/* 별 체크 영역(별 + 본문) — 누르면 onToggle */
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  border: none;
+  background: none;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+.main:active { opacity: 0.75; }
 
 .star { color: var(--text-hi); }
 
@@ -41,15 +54,27 @@
   color: var(--text-low);
 }
 
-.done {
+/* 한 줄 회고 토글 버튼 — count 자리. 둥근네모 테두리로 토글 버튼.
+   아이콘 색 = 회고 유무(hasReview) / 박스 배경 = 눌림(open, 입력칸 열림). */
+.reviewBtn {
   flex: none;
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: 0.08em;
-  color: var(--text-hi);
-  border: 1.5px solid var(--text-hi);
-  border-radius: var(--radius-full);
-  padding: 4px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  background: none;
+  cursor: pointer;
+  color: var(--text-low);
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.reviewBtn:active { opacity: 0.7; }
+.reviewBtn.hasReview { color: var(--text-hi); }
+.reviewBtn.open {
+  background: var(--line-soft);
+  border-color: var(--text-hi);
 }
 
 /* 갱지(잉크) 변형 — TodayPage 의 PaperCard 안에서 */
@@ -58,8 +83,9 @@
 .ink .title { color: var(--paper-ink); }
 .ink .sub { color: var(--paper-mid); }
 .ink .count { color: var(--paper-mid); }
-.ink .done {
-  color: var(--paper-ink);
+.ink .reviewBtn { color: var(--paper-mid); border-color: var(--paper-line); }
+.ink .reviewBtn.hasReview { color: var(--paper-ink); }
+.ink .reviewBtn.open {
+  background: var(--paper-deep);
   border-color: var(--paper-ink);
-  transform: rotate(-4deg);
 }

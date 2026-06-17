@@ -22,6 +22,21 @@ export function StarIcon({ filled = true, size = 18, className, style }) {
   );
 }
 
+// 한 줄 회고(메모) 아이콘 — 연필. filled=true(회고 있음)면 채워서 강조.
+export function NoteIcon({ filled = false, size = 18, className, style }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true"
+      className={className} style={{ flex: 'none', ...style }}>
+      <path d="M4 17.2V20h2.8L17.1 9.7l-2.8-2.8L4 17.2z"
+        fill={filled ? 'currentColor' : 'none'}
+        stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"
+        opacity={filled ? 1 : 0.7} />
+      <path d="M15.5 5.7l2.8 2.8 1.4-1.4a1.4 1.4 0 0 0 0-2L18.9 4a1.4 1.4 0 0 0-2 0l-1.4 1.7z"
+        fill="currentColor" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 // 별밭/우주 아이콘 (하단 내비용) — kind 로 모양 선택
 export function NavIcon({ kind, size = 22 }) {
   const s = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.45, strokeLinecap: 'round', strokeLinejoin: 'round' };

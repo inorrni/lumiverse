@@ -33,6 +33,7 @@ function deriveGoal(g) {
       clarity: planetClarity(stars),
       todayStarId: todayStar?.id ?? null,
       checkedToday: !!todayStar?.done,
+      todayReview: todayStar?.review ?? '', // 오늘 별의 한줄평(입력칸 초기값)
     }
   })
   return {
@@ -169,6 +170,33 @@ export function GoalProvider({ children }) {
     [rows],
   )
 
+  // 별 한줄평 저장 — 중간점검 개인화 입력. 낙관적 업데이트 후 DB write.
+  const setStarReview = useCallback(
+    async (galaxyId, planetId, starId, review) => {
+      const text = (review || '').trim()
+      setRows((prev) =>
+        prev.map((g) =>
+          g.id !== galaxyId
+            ? g
+            : {
+                ...g,
+                planets: (g.planets || []).map((p) =>
+                  p.id !== planetId
+                    ? p
+                    : {
+                        ...p,
+                        stars: (p.stars || []).map((s) => (s.id === starId ? { ...s, review: text } : s)),
+                      },
+                ),
+              },
+        ),
+      )
+      const { error } = await supabase.from('lumiverse_stars').update({ review: text }).eq('id', starId)
+      if (error) await reload()
+    },
+    [reload],
+  )
+
   // 강도(모드) 변경 — galaxies.intensity 갱신.
   const setGoalMode = useCallback(
     async (galaxyId, mode) => {
@@ -199,8 +227,8 @@ export function GoalProvider({ children }) {
   }, [userId, reload])
 
   const value = useMemo(
-    () => ({ goals, loading, reload, addGoal, toggleStarToday, addStar, setGoalMode, removeGoal, clearGoals }),
-    [goals, loading, reload, addGoal, toggleStarToday, addStar, setGoalMode, removeGoal, clearGoals],
+    () => ({ goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, setGoalMode, removeGoal, clearGoals }),
+    [goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, setGoalMode, removeGoal, clearGoals],
   )
 
   return <GoalContext.Provider value={value}>{children}</GoalContext.Provider>
