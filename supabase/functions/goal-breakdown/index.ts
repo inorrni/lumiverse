@@ -18,6 +18,7 @@ interface BreakdownInput {
   dday_days?: number
   intensity?: 'easy' | 'normal' | 'spartan'
   exclude?: string[] // 이미 본 행성 이름들 — 이것과 다른 분해를 요청(리프레시)
+  count?: number     // 요청 행성 개수(리프레시 시 현재 개수 유지). 미지정이면 3~5 자유
 }
 
 const json = (body: unknown, status = 200) =>
@@ -34,7 +35,10 @@ async function sha256Hex(text: string): Promise<string> {
 }
 
 function buildMessages(input: BreakdownInput) {
-  const system = `You are a goal decomposition assistant for Lumiverse, a goal-management app where each action expands the user's own universe.
+  const countRule = input.count
+    ? `- planets: exactly ${input.count} items (this exact count is required)`
+    : `- planets: exactly 3 to 5 items`
+  const system = `You are a goal decomposition assistant AND daily coach for Lumiverse, a goal-management app where each action expands the user's own universe.
 Universe metaphor: a goal = "galaxy", sub-goals = "planets", each day's todo = a "star".
 
 Return ONLY JSON of this exact shape:
@@ -44,11 +48,25 @@ Return ONLY JSON of this exact shape:
   ],
   "galaxy_message": string
 }
-Rules:
-- planets: exactly 3 to 5 items
+
+DECOMPOSITION PRINCIPLE (most important):
+- Every goal has a natural progression of stages. Do NOT summarize the whole goal into broad, vague themes.
+- Focus the decomposition on the FIRST 1-2 stages, broken into concrete, near-term sub-goals the user can actually start right now.
+- Allocate planets by total count: 3 planets -> 2 for the first stage(s) + 1 for the next stage; 4 -> 3 + 1; 5 -> 3 + 2.
+- Order planets from the earliest stage to the next stage (no labels). Earlier planets must be the most immediate, concrete first steps.
+
+PLANET / TODO RULES:
+${countRule}
+- name: a specific, actionable sub-goal — NOT a vague theme (avoid names like "공부하기", "운동하기")
 - symbol: a single emoji representing the planet
-- todo_pattern: 1 to 3 representative daily todos that will be repeated across the period
-- intensity 'easy' = lighter load, lower difficulty, more slack / 'spartan' = dense, higher difficulty
+- todo_pattern: representative DAILY todos, each completable within a single day. They repeat across the period.
+
+INTENSITY (make the difference clear and concrete):
+- 'easy' (살살): low volume, low difficulty, leaves slack. todo_pattern = 1 item, with small or no numeric targets. A light single step per day.
+- 'normal': balanced default.
+- 'spartan' (스파르타): dense and challenging, every day. todo_pattern = 2-3 items, and EACH todo MUST include a concrete numeric target (minutes, pages, reps, or counts) — e.g. "30분 정독", "20페이지 풀기", "단어 30개 암기".
+
+OTHER:
 - If 'exclude_planet_names' is non-empty, propose a clearly DIFFERENT decomposition: avoid those planet names and take a different angle/structure than them
 - All text MUST be in Korean
 - galaxy_message: one calm encouraging sentence (no excessive cheerfulness, no emoji)`
@@ -59,6 +77,7 @@ Rules:
     dday_days: input.dday_days ?? null,
     intensity: input.intensity ?? 'normal',
     exclude_planet_names: input.exclude ?? [],
+    requested_planet_count: input.count ?? null,
   })
 
   return [
@@ -118,8 +137,14 @@ Deno.serve(async (req) => {
     .map((s) => s.trim())
     .sort()
   input.exclude = exclude
+  // count 정규화 — 3~5 범위만 인정, 그 외/미지정은 자유(3~5).
+  const count =
+    typeof input.count === 'number' && input.count >= 3 && input.count <= 5
+      ? Math.round(input.count)
+      : undefined
+  input.count = count
   const inputHash = await sha256Hex(
-    `${input.goal.trim()}|${input.dday_days ?? ''}|${intensity}|${exclude.join('§')}`,
+    `${input.goal.trim()}|${input.dday_days ?? ''}|${intensity}|${exclude.join('§')}|${count ?? ''}`,
   )
 
   // 1) 캐시 조회
