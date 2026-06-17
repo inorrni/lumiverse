@@ -14,17 +14,27 @@ import TodayRow from '../components/feature/today/TodayRow'
 import ConstellationArt from '../components/feature/constellation/ConstellationArt'
 import ConstellationModal from '../components/feature/constellation/ConstellationModal'
 import { useGoals } from '../store/GoalStore'
+import { useAuth } from '../store/AuthStore'
 import { useLocalStorage } from '../hooks/useLocalStorage'
-import { computeMidCheck, STATE_META } from '../lib/midcheck'
-import { todayLabel } from '../lib/date'
+import { STATE_META } from '../lib/midcheck'
 import styles from './DashboardPage.module.css'
 
 const CONSTELLATION_MIN = 14
 
+// 시간대별 인사말
+function greeting() {
+  const h = new Date().getHours()
+  if (h >= 5 && h < 12) return 'Good morning'
+  if (h >= 12 && h < 18) return 'Good afternoon'
+  if (h >= 18 && h < 23) return 'Good evening'
+  return 'Good night'
+}
+
 // 6 · 대시보드 — 내 우주. 목표 0개면 빈 상태(첫 목표 유도).
 export default function DashboardPage() {
   const navigate = useNavigate()
-  const { goals, historyOf } = useGoals()
+  const { goals } = useGoals()
+  const { nickname } = useAuth()
   const goNew = () => navigate('/mode')
   const carouselRef = useRef(null)
   const [activeIdx, setActiveIdx] = useState(0)
@@ -63,25 +73,33 @@ export default function DashboardPage() {
   const doneToday = allSteps.filter((s) => s.checkedToday).length
   // Today·Mid-Check 카드는 현재 보고 있는(활성) 목표 기준
   const activeGoal = goals[activeIdx] || goals[0]
-  const checkMc = activeGoal ? computeMidCheck(historyOf(activeGoal.id)) : null
+  // 활성 목표의 오늘 별 체크/전체(오늘 별 있는 행성 기준)
+  const todayDone = activeGoal ? activeGoal.steps.filter((s) => s.checkedToday).length : 0
+  const todayTotal = activeGoal ? activeGoal.steps.filter((s) => s.todayStarId).length : 0
 
   return (
     <AppScreen padTop={20} seed={5} nav={<BottomNav />}>
       <header className={styles.topbar}>
         <Wordmark size={17} sparkle />
-        <div className={styles.topIcons} aria-hidden="true">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6" /><path d="M10 19a2 2 0 0 0 4 0" />
-          </svg>
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <circle cx="12" cy="8.5" r="3.6" /><path d="M4.5 20c1.4-3.6 4.2-5 7.5-5s6.1 1.4 7.5 5" />
-          </svg>
+        <div className={styles.topIcons}>
+          {/* 알림 — 기본 틀(동작 향후) */}
+          <button type="button" className={styles.iconBtn} aria-label="알림">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6" /><path d="M10 19a2 2 0 0 0 4 0" />
+            </svg>
+          </button>
+          {/* 사용자 — 설정으로 */}
+          <button type="button" className={styles.iconBtn} aria-label="내 정보" onClick={() => navigate('/app/settings')}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="12" cy="8.5" r="3.6" /><path d="M4.5 20c1.4-3.6 4.2-5 7.5-5s6.1 1.4 7.5 5" />
+            </svg>
+          </button>
         </div>
       </header>
 
       <div className={styles.greetingRow}>
         <div>
-          <h1 className={styles.hello}>Good evening,<br />stargazer.</h1>
+          <h1 className={styles.hello}>{greeting()},<br />{nickname || 'stargazer'}.</h1>
           <p className={styles.subhello}>오늘의 작은 행동이<br />너의 우주를 선명하게 만들어.</p>
         </div>
         <Card className={styles.daily} pad="12px 14px">
@@ -149,8 +167,10 @@ export default function DashboardPage() {
                         )}
                         <span className={styles.footerText}>
                           {hasConst
-                            ? `${goal.title} 별자리 완성`
-                            : `${goal.title} 별 ${earned}개 — ${canConst ? '별자리 가능' : `${CONSTELLATION_MIN - earned}개 더`}`}
+                            ? `별 ${goal.constellation.star_count}개로 별자리를 완성했어요`
+                            : canConst
+                              ? `별 ${earned}개 — 지금 별자리를 만들 수 있어요`
+                              : `별 ${earned}개 — ${CONSTELLATION_MIN - earned}개 더 모으면 별자리가 돼요`}
                         </span>
                       </div>
                       {hasConst ? (
@@ -191,13 +211,12 @@ export default function DashboardPage() {
         <Card variant="paper" className={styles.today}>
           <div className={styles.todayHead}>
             <Kicker tone="ink">Today</Kicker>
-            <span className={styles.todayDate}>{todayLabel()}</span>
+            <span className={styles.todayDate}>{todayDone}/{todayTotal} · {activeGoal.days ? `D-${activeGoal.days}` : '∞'}</span>
           </div>
           {activeGoal.steps.slice(0, 3).map((s, i, arr) => (
             <TodayRow
               key={s.id}
               title={s.title}
-              sub={`${activeGoal.title} · 별 ${s.stars}개`}
               done={s.checkedToday}
               last={i === arr.length - 1}
             />
@@ -211,16 +230,18 @@ export default function DashboardPage() {
           <div className={styles.midHead}>
             <span className={styles.headLeft}><Sparkle size={10} /><Kicker tone="hi">Mid-Check</Kicker></span>
             <span className={styles.midDate}>
-              {checkMc ? `${STATE_META[checkMc.state].label} · 전체 ${activeGoal.clarity}%` : null}
+              {activeGoal.midCheck
+                ? `${STATE_META[activeGoal.midCheck.state]?.label ?? '점검'} · 전체 ${activeGoal.clarity}%`
+                : `점검 전 · 전체 ${activeGoal.clarity}%`}
             </span>
           </div>
           <div className={styles.midBody}>
             <Planet size={40} />
             <p className={styles.midMsg}>
-              {activeGoal.title}의 지금 흐름을<br />항해사가 읽어 줄게요.
+              {activeGoal.midCheck?.message || '아직 중간점검 전이에요 — 눌러서 점검해 봐요.'}
             </p>
             <Button variant="ghost" className={styles.midBtn} onClick={() => navigate(`/app/check/${activeGoal.id}`)}>
-              결과 보기 →
+              중간점검
             </Button>
           </div>
         </Card>

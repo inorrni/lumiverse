@@ -10,6 +10,7 @@ import { EmptyView } from '../components/ui/DataView'
 import { Sparkle } from '../components/ui/icons'
 import { Planet } from '../components/ui/Celestial'
 import { useGoals } from '../store/GoalStore'
+import { useAuth } from '../store/AuthStore'
 import { computeMidCheck } from '../lib/midcheck'
 import { fetchSelfInsight } from '../lib/api'
 import { useAsync } from '../hooks/useAsync'
@@ -34,6 +35,7 @@ function ChipSection({ title, items }) {
 export default function UniverseCheckPage() {
   const navigate = useNavigate()
   const { goals, historyOf } = useGoals()
+  const { nickname } = useAuth()
   const { status, data, error, run } = useAsync(fetchSelfInsight)
 
   // 전체 집계 — 목표별 전체 내용(세부목표·상태·완료율·한줄평) + 합계 + 평균 진행률.
@@ -63,11 +65,11 @@ export default function UniverseCheckPage() {
     }
   }, [goals, historyOf])
 
-  // 데이터가 의미있게 바뀔 때만 재호출(불필요 렌더로 재호출 방지)
-  const sig = `${agg.goalStats.length}|${agg.reviewCount}|${agg.totals.done_stars}`
+  // 데이터(목표 내용·한줄평·닉네임)가 바뀔 때만 재호출 — 함수 캐시 키와 동일 범위로 맞춤
+  const sig = `${JSON.stringify(agg.goalStats)}|${nickname || ''}`
   useEffect(() => {
     if (goals.length === 0) return
-    run({ goals: agg.goalStats, totals: agg.totals }).catch(() => {})
+    run({ goals: agg.goalStats, totals: agg.totals, nickname }).catch(() => {})
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sig])
 
@@ -126,7 +128,7 @@ export default function UniverseCheckPage() {
           {failed && (
             <p className={styles.failNote}>
               {friendlyError(error)}{' '}
-              <button className={styles.retry} onClick={() => run({ goals: agg.goalStats, totals: agg.totals }).catch(() => {})}>
+              <button className={styles.retry} onClick={() => run({ goals: agg.goalStats, totals: agg.totals, nickname }).catch(() => {})}>
                 다시 시도
               </button>
             </p>

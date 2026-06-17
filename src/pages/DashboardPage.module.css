@@ -6,9 +6,21 @@
 
 .topIcons {
   display: flex;
-  gap: var(--space-4);
+  gap: var(--space-3);
   color: var(--text-secondary);
 }
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.iconBtn:active { opacity: 0.6; }
 
 .greetingRow {
   display: flex;
