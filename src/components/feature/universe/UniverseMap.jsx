@@ -43,8 +43,10 @@ export default function UniverseMap({ steps, onAdd, onSelect }) {
             onClick={() => onSelect?.(s.id)}
           >
             <Planet size={size} />
-            <div className={styles.name}>{s.title}</div>
-            <div className={styles.meta}>{s.done} / {s.stars} · {s.clarity}%</div>
+            <div className={styles.label}>
+              <div className={styles.name}>{s.title}</div>
+              <div className={styles.meta}>{s.done} / {s.stars} · {s.clarity}%</div>
+            </div>
           </button>
         )
       })}
