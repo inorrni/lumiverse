@@ -18,6 +18,9 @@ dist-ssr/
 .env.*.local
 *.pem
 
+# Deno (Edge Functions) — `deno check`/`deno cache` 부산물, 루트엔 불필요
+deno.lock
+
 # 로그 · 캐시
 *.log
 npm-debug.log*
