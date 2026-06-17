@@ -48,7 +48,7 @@ export default function UniversePage() {
         />
       ) : (
         <>
-          <div className={styles.cluster}>
+          <div className={styles.cluster} style={{ minHeight: goals.length <= 3 ? 320 : goals.length <= 6 ? 400 : 460 }}>
             {/* 배경 궤도 타원 */}
             <div className={styles.orbit} aria-hidden="true" />
 
