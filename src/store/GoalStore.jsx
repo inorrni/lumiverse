@@ -107,40 +107,44 @@ export function GoalProvider({ children }) {
   )
 
   // 오늘의 별 체크 토글 — 해당 행성의 오늘(due_date) 별 done 을 뒤집는다.
+  // 대상 별/다음 상태는 rows 에서 동기적으로 구한다(setRows 업데이터는 나중에 실행되므로
+  // 그 안에서 잡은 값은 이 함수 흐름에서 아직 null 이다 → DB write 가 skip 되던 버그).
   // 낙관적 업데이트 후 DB 반영, 실패 시 reload 로 복구.
   const toggleStarToday = useCallback(
     async (galaxyId, planetId) => {
       const today = todayISO()
-      let starId = null
-      let nextDone = null
+      const planet = rows.find((g) => g.id === galaxyId)?.planets?.find((p) => p.id === planetId)
+      const star = (planet?.stars || []).find((s) => s.due_date === today)
+      if (!star) return // 오늘 배정된 별 없음
+      const starId = star.id
+      const nextDone = !star.done
+      const doneAt = nextDone ? new Date().toISOString() : null
       setRows((prev) =>
-        prev.map((g) => {
-          if (g.id !== galaxyId) return g
-          return {
-            ...g,
-            planets: (g.planets || []).map((p) => {
-              if (p.id !== planetId) return p
-              return {
-                ...p,
-                stars: (p.stars || []).map((s) => {
-                  if (s.due_date !== today) return s
-                  starId = s.id
-                  nextDone = !s.done
-                  return { ...s, done: nextDone, done_at: nextDone ? new Date().toISOString() : null }
-                }),
-              }
-            }),
-          }
-        }),
+        prev.map((g) =>
+          g.id !== galaxyId
+            ? g
+            : {
+                ...g,
+                planets: (g.planets || []).map((p) =>
+                  p.id !== planetId
+                    ? p
+                    : {
+                        ...p,
+                        stars: (p.stars || []).map((s) =>
+                          s.id === starId ? { ...s, done: nextDone, done_at: doneAt } : s,
+                        ),
+                      },
+                ),
+              },
+        ),
       )
-      if (!starId) return // 오늘 배정된 별 없음
       const { error } = await supabase
         .from('lumiverse_stars')
-        .update({ done: nextDone, done_at: nextDone ? new Date().toISOString() : null })
+        .update({ done: nextDone, done_at: doneAt })
         .eq('id', starId)
       if (error) await reload()
     },
-    [reload],
+    [rows, reload],
   )
 
   // 별 추가 — 행성에 오늘 날짜 별을 1개 더한다(행성상세 [+별 추가]).
