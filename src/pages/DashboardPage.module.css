@@ -164,6 +164,7 @@
 .viewAll {
   font-size: var(--text-sm);
   color: var(--text-secondary);
+  cursor: pointer;
 }
 
 .universeBody {

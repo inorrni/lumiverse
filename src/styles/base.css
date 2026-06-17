@@ -23,6 +23,8 @@ body {
   line-height: var(--line-normal);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* 기본 커서 = 화살표. 텍스트(제목·본문)도 I-beam 대신 화살표로. */
+  cursor: default;
 }
 
 /* 모바일 퍼스트 앱 셸: 기본은 전체 폭(모바일), 큰 화면에선 중앙의
@@ -41,9 +43,24 @@ button {
   cursor: pointer;
 }
 
+/* 클릭 가능한 요소엔 손가락 포인터. 텍스트/일반 영역은 기본 화살표 유지. */
+a, label, select, summary, [role="button"] {
+  cursor: pointer;
+}
+
+/* 비활성 버튼은 손가락 포인터를 떼서 클릭 불가를 알린다. */
+button:disabled, button[aria-disabled="true"] {
+  cursor: default;
+}
+
 input, textarea, select {
   font: inherit;
   color: inherit;
+}
+
+/* 텍스트 입력칸만 텍스트 커서(I-beam) 유지 */
+input, textarea {
+  cursor: text;
 }
 
 a {
