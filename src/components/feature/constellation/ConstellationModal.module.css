@@ -1,0 +1,109 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(2px);
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  max-height: 86vh;
+  overflow-y: auto;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6) var(--space-5) var(--space-5);
+}
+
+.close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  color: var(--text-low);
+  font-size: var(--text-base);
+  cursor: pointer;
+}
+
+.title {
+  margin: var(--space-2) 0 var(--space-1);
+  font-family: var(--font-serif);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-lg);
+}
+.lead {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-normal);
+  margin-bottom: var(--space-4);
+}
+
+.state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-6) 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+.retry {
+  background: none; border: none; padding: 0;
+  color: var(--text-hi); font-size: var(--text-sm);
+  text-decoration: underline; cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+.symbol {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-md);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.symbolOn {
+  border-color: var(--text-hi);
+  background: var(--line-soft);
+}
+.emoji { font-size: 22px; flex: none; }
+.label { font-size: var(--text-xs); color: var(--text-secondary); }
+
+/* 완성 연출 */
+.born { text-align: center; }
+.bigArt {
+  position: relative;
+  display: inline-block;
+  color: var(--text-hi);
+  margin: var(--space-2) 0 var(--space-3);
+}
+.sp1 { position: absolute; top: 6px; right: 2px; color: var(--text-hi); opacity: 0.85; }
+.sp2 { position: absolute; bottom: 14px; left: 4px; color: var(--text-hi); opacity: 0.6; }
+.bornTitle {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+}
+.bornSub {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: var(--space-1) 0 var(--space-5);
+}

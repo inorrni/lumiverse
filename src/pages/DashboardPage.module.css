@@ -164,6 +164,7 @@
 .viewAll {
   font-size: var(--text-sm);
   color: var(--text-secondary);
+  cursor: pointer;
 }
 
 .universeBody {
@@ -189,6 +190,12 @@
 .footerText {
   font-size: var(--text-xs);
   color: var(--text-secondary);
+}
+
+.constArt {
+  flex: none;
+  display: inline-flex;
+  color: var(--text-hi);
 }
 
 .pill {

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AppScreen from '../components/layout/AppScreen'
 import BottomNav from '../components/layout/BottomNav'
@@ -11,7 +11,10 @@ import { Sparkle, StarIcon } from '../components/ui/icons'
 import { Planet, Constellation } from '../components/ui/Celestial'
 import UniverseMap from '../components/feature/universe/UniverseMap'
 import TodayRow from '../components/feature/today/TodayRow'
+import ConstellationArt from '../components/feature/constellation/ConstellationArt'
+import ConstellationModal from '../components/feature/constellation/ConstellationModal'
 import { useGoals } from '../store/GoalStore'
+import { useLocalStorage } from '../hooks/useLocalStorage'
 import { computeMidCheck, STATE_META } from '../lib/midcheck'
 import { todayLabel } from '../lib/date'
 import styles from './DashboardPage.module.css'
@@ -25,10 +28,17 @@ export default function DashboardPage() {
   const goNew = () => navigate('/mode')
   const carouselRef = useRef(null)
   const [activeIdx, setActiveIdx] = useState(0)
+  // 마지막으로 보던 목표를 기억해 다른 페이지에서 돌아와도 그 목표로 복원
+  const [lastGoalId, setLastGoalId] = useLocalStorage('lumiverse:lastGoalId', null)
+  const restoredRef = useRef(false)
+  const [constModalGoal, setConstModalGoal] = useState(null)
+
   const handleScroll = () => {
     const el = carouselRef.current
     if (!el) return
-    setActiveIdx(Math.round(el.scrollLeft / el.offsetWidth))
+    const idx = Math.round(el.scrollLeft / el.offsetWidth)
+    setActiveIdx(idx)
+    if (goals[idx]) setLastGoalId(goals[idx].id)
   }
   const scrollCarousel = (dir) => {
     const el = carouselRef.current
@@ -36,14 +46,24 @@ export default function DashboardPage() {
     el.scrollBy({ left: dir * el.offsetWidth, behavior: 'smooth' })
   }
 
+  // 진입 시 1회 — 저장된 목표 위치로 캐러셀 복원
+  useEffect(() => {
+    if (restoredRef.current || goals.length === 0) return
+    restoredRef.current = true
+    const idx = lastGoalId ? goals.findIndex((g) => g.id === lastGoalId) : 0
+    if (idx > 0) {
+      setActiveIdx(idx)
+      const el = carouselRef.current
+      if (el) el.scrollLeft = idx * el.offsetWidth
+    }
+  }, [goals, lastGoalId])
+
   const allSteps = goals.flatMap((g) => g.steps)
   const totalPlanets = allSteps.length
   const doneToday = allSteps.filter((s) => s.checkedToday).length
-  const featured = goals[0]
-  const canConstellation = featured && featured.stars >= CONSTELLATION_MIN
-  // 중간점검 카드 — 현재 캐러셀 활성 목표 기준(universe map 목표와 매칭)
-  const checkGoal = goals[activeIdx] || featured
-  const checkMc = checkGoal ? computeMidCheck(historyOf(checkGoal.id)) : null
+  // Today·Mid-Check 카드는 현재 보고 있는(활성) 목표 기준
+  const activeGoal = goals[activeIdx] || goals[0]
+  const checkMc = activeGoal ? computeMidCheck(historyOf(activeGoal.id)) : null
 
   return (
     <AppScreen padTop={20} seed={5} nav={<BottomNav />}>
@@ -98,7 +118,9 @@ export default function DashboardPage() {
             )}
           <div className={styles.universeCarousel} ref={carouselRef} onScroll={handleScroll}>
             {goals.map((goal) => {
-              const canConst = goal.stars >= CONSTELLATION_MIN
+              const earned = goal.starsEarned
+              const hasConst = !!goal.constellation
+              const canConst = earned >= CONSTELLATION_MIN
               return (
                 <div key={goal.id} className={styles.universeSlide}>
                   <Card pad={0} className={styles.universeCard}>
@@ -118,14 +140,31 @@ export default function DashboardPage() {
                     </div>
                     <div className={styles.footer}>
                       <div className={styles.footerLeft}>
-                        <Constellation w={66} h={32} dim />
+                        {hasConst ? (
+                          <span className={styles.constArt}>
+                            <ConstellationArt seed={goal.id} count={goal.constellation.star_count} symbol={goal.constellation.symbol} size={40} />
+                          </span>
+                        ) : (
+                          <Constellation w={66} h={32} dim />
+                        )}
                         <span className={styles.footerText}>
-                          {goal.title} 별 {goal.stars}개 — {canConst ? '별자리 가능' : `${CONSTELLATION_MIN - goal.stars}개 더`}
+                          {hasConst
+                            ? `${goal.title} 별자리 완성`
+                            : `${goal.title} 별 ${earned}개 — ${canConst ? '별자리 가능' : `${CONSTELLATION_MIN - earned}개 더`}`}
                         </span>
                       </div>
-                      <span className={`${styles.pill} ${canConst ? '' : styles.pillOff}`}>
-                        <Sparkle size={8} /> 별자리 만들기
-                      </span>
+                      {hasConst ? (
+                        <span className={styles.pill}><Sparkle size={8} /> 별자리 완성</span>
+                      ) : (
+                        <button
+                          type="button"
+                          className={`${styles.pill} ${canConst ? '' : styles.pillOff}`}
+                          onClick={() => canConst && setConstModalGoal(goal)}
+                          disabled={!canConst}
+                        >
+                          <Sparkle size={8} /> 별자리 만들기
+                        </button>
+                      )}
                     </div>
                   </Card>
                 </div>
@@ -148,17 +187,17 @@ export default function DashboardPage() {
         </>
       )}
 
-      {featured && (
+      {activeGoal && (
         <Card variant="paper" className={styles.today}>
           <div className={styles.todayHead}>
             <Kicker tone="ink">Today</Kicker>
             <span className={styles.todayDate}>{todayLabel()}</span>
           </div>
-          {featured.steps.slice(0, 3).map((s, i, arr) => (
+          {activeGoal.steps.slice(0, 3).map((s, i, arr) => (
             <TodayRow
               key={s.id}
               title={s.title}
-              sub={`${featured.title} · 별 ${s.stars}개`}
+              sub={`${activeGoal.title} · 별 ${s.stars}개`}
               done={s.checkedToday}
               last={i === arr.length - 1}
             />
@@ -167,24 +206,28 @@ export default function DashboardPage() {
         </Card>
       )}
 
-      {checkGoal && (
+      {activeGoal && (
         <Card className={styles.midcheck}>
           <div className={styles.midHead}>
             <span className={styles.headLeft}><Sparkle size={10} /><Kicker tone="hi">Mid-Check</Kicker></span>
             <span className={styles.midDate}>
-              {checkMc ? `${STATE_META[checkMc.state].label} · 전체 ${checkGoal.clarity}%` : null}
+              {checkMc ? `${STATE_META[checkMc.state].label} · 전체 ${activeGoal.clarity}%` : null}
             </span>
           </div>
           <div className={styles.midBody}>
             <Planet size={40} />
             <p className={styles.midMsg}>
-              {checkGoal.title}의 지금 흐름을<br />항해사가 읽어 줄게요.
+              {activeGoal.title}의 지금 흐름을<br />항해사가 읽어 줄게요.
             </p>
-            <Button variant="ghost" className={styles.midBtn} onClick={() => navigate(`/app/check/${checkGoal.id}`)}>
+            <Button variant="ghost" className={styles.midBtn} onClick={() => navigate(`/app/check/${activeGoal.id}`)}>
               결과 보기 →
             </Button>
           </div>
         </Card>
+      )}
+
+      {constModalGoal && (
+        <ConstellationModal goal={constModalGoal} onClose={() => setConstModalGoal(null)} />
       )}
     </AppScreen>
   )

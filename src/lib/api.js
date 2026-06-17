@@ -91,3 +91,17 @@ export async function fetchSelfInsight({ goals, totals } = {}) {
     cached: !!data?.cached,
   }
 }
+
+// 별자리 상징 추천 — Edge Function(constellation-symbol) 호출.
+// args: { goal, intensity } → { symbols: [{ symbol, label }] }
+export async function fetchConstellationSymbols({ goal, intensity } = {}) {
+  const text = (goal || '').trim()
+  if (!text) throw new Error('목표가 비어 있어요.')
+
+  const { data, error } = await supabase.functions.invoke('constellation-symbol', {
+    body: { goal: text, intensity: intensity || 'normal' },
+  })
+  if (error) throw error
+
+  return { symbols: Array.isArray(data?.symbols) ? data.symbols : [] }
+}
