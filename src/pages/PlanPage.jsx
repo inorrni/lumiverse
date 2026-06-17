@@ -17,6 +17,11 @@ import styles from './PlanPage.module.css'
 const MIN_PLANETS = 3
 const MAX_PLANETS = 5
 
+// /plan 재진입 시 입력(goal·dday·intensity)이 같으면 분해/편집 결과를 유지해
+// 매번 재분해되는 것을 막는다(B안). 모듈 레벨이라 네비게이션엔 살아남고 새로고침엔 초기화된다.
+// confirm(우주 생성) 시 비워 새 목표 흐름에 이전 draft가 새지 않게 한다.
+let planDraft = null // { sig, planets, excluded }
+
 function PlanLoading() {
   return (
     <div className={styles.loading}>
@@ -42,21 +47,32 @@ export default function PlanPage() {
   const isAuto = state?.inputMethod === 'auto'
   const intensity = mode === 'sparta' ? 'spartan' : 'easy'
 
-  const [planets, setPlanets] = useState([])
+  // 분해를 결정하는 입력 시그니처. 같으면 재분해 없이 draft 복원(B안).
+  const sig = `${isAuto ? 'self' : 'ai'}|${goal ?? ''}|${dday ?? ''}|${intensity}`
+  const hasDraft = planDraft?.sig === sig && planDraft.planets.length > 0
+
+  const [planets, setPlanets] = useState(() => (hasDraft ? planDraft.planets : []))
   const [editingId, setEditingId] = useState(null)
   const [saving, setSaving] = useState(false)
-  const [excluded, setExcluded] = useState([]) // 리프레시로 이미 본 행성 이름 누적
+  // 리프레시로 이미 본 행성 이름 누적
+  const [excluded, setExcluded] = useState(() => (hasDraft ? planDraft.excluded : []))
 
-  // 추천 모드만 AI 호출. 알아서 모드는 빈 목록에서 직접 입력.
+  // 추천 모드만 AI 호출. 입력이 그대로면(draft 존재) 재분해 skip → 편집/리프레시 결과 유지.
   useEffect(() => {
-    if (goal && !isAuto) run(goal, { days, intensity })
-  }, [goal, days, intensity, isAuto, run])
+    if (!goal || isAuto || hasDraft) return
+    run(goal, { days, intensity })
+  }, [goal, days, intensity, isAuto, hasDraft, run])
 
   useEffect(() => {
     if (!isAuto && status === 'success' && data?.steps) {
       setPlanets(data.steps.map((s) => ({ ...s })))
     }
   }, [isAuto, status, data])
+
+  // 편집/분해 결과를 draft 에 보존(네비게이션 후 복원용). 빈 목록은 저장하지 않는다.
+  useEffect(() => {
+    if (planets.length > 0) planDraft = { sig, planets, excluded }
+  }, [sig, planets, excluded])
 
   if (!goal) return <Navigate to="/goal" replace />
 
@@ -82,6 +98,7 @@ export default function PlanPage() {
     setSaving(true)
     try {
       await addGoal({ goal, planets, dday, mode, inputMode: isAuto ? 'self' : 'ai' })
+      planDraft = null // 우주 생성 완료 — 새 목표 흐름에 이전 draft가 새지 않게 비움
       navigate('/app')
     } catch {
       setSaving(false)
