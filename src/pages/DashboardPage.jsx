@@ -11,6 +11,8 @@ import { Sparkle, StarIcon } from '../components/ui/icons'
 import { Planet, Constellation } from '../components/ui/Celestial'
 import UniverseMap from '../components/feature/universe/UniverseMap'
 import TodayRow from '../components/feature/today/TodayRow'
+import ConstellationArt from '../components/feature/constellation/ConstellationArt'
+import ConstellationModal from '../components/feature/constellation/ConstellationModal'
 import { useGoals } from '../store/GoalStore'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import { computeMidCheck, STATE_META } from '../lib/midcheck'
@@ -29,6 +31,7 @@ export default function DashboardPage() {
   // 마지막으로 보던 목표를 기억해 다른 페이지에서 돌아와도 그 목표로 복원
   const [lastGoalId, setLastGoalId] = useLocalStorage('lumiverse:lastGoalId', null)
   const restoredRef = useRef(false)
+  const [constModalGoal, setConstModalGoal] = useState(null)
 
   const handleScroll = () => {
     const el = carouselRef.current
@@ -115,7 +118,9 @@ export default function DashboardPage() {
             )}
           <div className={styles.universeCarousel} ref={carouselRef} onScroll={handleScroll}>
             {goals.map((goal) => {
-              const canConst = goal.stars >= CONSTELLATION_MIN
+              const earned = goal.starsEarned
+              const hasConst = !!goal.constellation
+              const canConst = earned >= CONSTELLATION_MIN
               return (
                 <div key={goal.id} className={styles.universeSlide}>
                   <Card pad={0} className={styles.universeCard}>
@@ -135,14 +140,31 @@ export default function DashboardPage() {
                     </div>
                     <div className={styles.footer}>
                       <div className={styles.footerLeft}>
-                        <Constellation w={66} h={32} dim />
+                        {hasConst ? (
+                          <span className={styles.constArt}>
+                            <ConstellationArt seed={goal.id} count={goal.constellation.star_count} symbol={goal.constellation.symbol} size={40} />
+                          </span>
+                        ) : (
+                          <Constellation w={66} h={32} dim />
+                        )}
                         <span className={styles.footerText}>
-                          {goal.title} 별 {goal.stars}개 — {canConst ? '별자리 가능' : `${CONSTELLATION_MIN - goal.stars}개 더`}
+                          {hasConst
+                            ? `${goal.title} 별자리 완성`
+                            : `${goal.title} 별 ${earned}개 — ${canConst ? '별자리 가능' : `${CONSTELLATION_MIN - earned}개 더`}`}
                         </span>
                       </div>
-                      <span className={`${styles.pill} ${canConst ? '' : styles.pillOff}`}>
-                        <Sparkle size={8} /> 별자리 만들기
-                      </span>
+                      {hasConst ? (
+                        <span className={styles.pill}><Sparkle size={8} /> 별자리 완성</span>
+                      ) : (
+                        <button
+                          type="button"
+                          className={`${styles.pill} ${canConst ? '' : styles.pillOff}`}
+                          onClick={() => canConst && setConstModalGoal(goal)}
+                          disabled={!canConst}
+                        >
+                          <Sparkle size={8} /> 별자리 만들기
+                        </button>
+                      )}
                     </div>
                   </Card>
                 </div>
@@ -202,6 +224,10 @@ export default function DashboardPage() {
             </Button>
           </div>
         </Card>
+      )}
+
+      {constModalGoal && (
+        <ConstellationModal goal={constModalGoal} onClose={() => setConstModalGoal(null)} />
       )}
     </AppScreen>
   )

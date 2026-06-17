@@ -192,6 +192,12 @@
   color: var(--text-secondary);
 }
 
+.constArt {
+  flex: none;
+  display: inline-flex;
+  color: var(--text-hi);
+}
+
 .pill {
   flex: none;
   display: inline-flex;

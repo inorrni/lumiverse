@@ -38,6 +38,9 @@ function deriveGoal(g) {
       todayReview: todayStar?.review ?? '', // 오늘 별의 한줄평(입력칸 초기값)
     }
   })
+  // 별자리 — 임베드는 배열(또는 객체)로 올 수 있어 정규화. 없으면 null.
+  const cRaw = g.constellation
+  const constellation = Array.isArray(cRaw) ? cRaw[0] ?? null : cRaw ?? null
   return {
     id: g.id,
     title: g.name,
@@ -49,6 +52,7 @@ function deriveGoal(g) {
     stars: steps.reduce((n, s) => n + s.stars, 0),
     starsEarned: steps.reduce((n, s) => n + s.done, 0),
     clarity: galaxyClarity(planets),
+    constellation, // { symbol, star_count } | null
     steps,
   }
 }
@@ -68,7 +72,7 @@ export function GoalProvider({ children }) {
     // 임베드 별칭(planets:/stars:)으로 코드가 쓰는 키 이름은 그대로 유지.
     const { data, error } = await supabase
       .from('lumiverse_galaxies')
-      .select('*, planets:lumiverse_planets(*, stars:lumiverse_stars(*))')
+      .select('*, planets:lumiverse_planets(*, stars:lumiverse_stars(*)), constellation:lumiverse_constellations(*)')
       .neq('status', 'blackhole')
       .order('created_at', { ascending: false })
     if (!error) setRows(data || [])
@@ -293,6 +297,18 @@ export function GoalProvider({ children }) {
     [reload],
   )
 
+  // 별자리 생성 — 누적 별 14개↑ 보상. 은하당 1개(galaxy_id unique). symbol=엠블럼, star_count=생성 시점 누적 별.
+  const createConstellation = useCallback(
+    async (galaxyId, symbol, starCount) => {
+      const { error } = await supabase
+        .from('lumiverse_constellations')
+        .insert({ galaxy_id: galaxyId, symbol, star_count: starCount ?? 0 })
+      if (error) throw error
+      await reload()
+    },
+    [reload],
+  )
+
   // 행성 추가 — 보완 추천 행성. 오늘~디데이 기간에 todo_pattern 으로 별을 인스턴스화.
   const addPlanet = useCallback(
     async (galaxyId, { name, symbol = null, todo_pattern = null }) => {
@@ -349,8 +365,8 @@ export function GoalProvider({ children }) {
   }, [userId, reload])
 
   const value = useMemo(
-    () => ({ goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, historyOf, saveMidCheck, blackholePlanet, addPlanet, loadBlackholePlanets, restorePlanets, setGoalMode, removeGoal, clearGoals }),
-    [goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, historyOf, saveMidCheck, blackholePlanet, addPlanet, loadBlackholePlanets, restorePlanets, setGoalMode, removeGoal, clearGoals],
+    () => ({ goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, historyOf, saveMidCheck, blackholePlanet, addPlanet, loadBlackholePlanets, restorePlanets, createConstellation, setGoalMode, removeGoal, clearGoals }),
+    [goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, historyOf, saveMidCheck, blackholePlanet, addPlanet, loadBlackholePlanets, restorePlanets, createConstellation, setGoalMode, removeGoal, clearGoals],
   )
 
   return <GoalContext.Provider value={value}>{children}</GoalContext.Provider>

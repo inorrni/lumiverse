@@ -7,6 +7,7 @@ import Button from '../components/ui/Button'
 import { EmptyView } from '../components/ui/DataView'
 import { Sparkle } from '../components/ui/icons'
 import { Galaxy, BlackHole, Constellation } from '../components/ui/Celestial'
+import ConstellationArt from '../components/feature/constellation/ConstellationArt'
 import { useGoals } from '../store/GoalStore'
 import styles from './UniversePage.module.css'
 
@@ -55,7 +56,8 @@ export default function UniversePage() {
 
             {goals.map((goal, i) => {
               const [lx, ly] = SCATTER[i % SCATTER.length]
-              const canConst = goal.stars >= CONSTELLATION_MIN
+              const hasConst = !!goal.constellation
+              const canConst = goal.starsEarned >= CONSTELLATION_MIN
               const gSize = 100 + ((i * 31) % 3)        // 100~102px
               const gRotate = ((i * 53) % 24) - 8       // -8°~+15°
               return (
@@ -67,13 +69,19 @@ export default function UniversePage() {
                 >
                   <div className={styles.galaxyVisual}>
                     <Galaxy size={gSize} style={{ transform: `rotate(${gRotate}deg)` }} />
-                    {canConst && <Sparkle size={9} className={styles.sparkle} />}
+                    {(hasConst || canConst) && <Sparkle size={9} className={styles.sparkle} />}
                   </div>
                   <div className={styles.galaxyName}>{goal.title}</div>
                   <div className={styles.galaxyMeta}>
                     {goal.days ? `D-${goal.days}` : '∞'} · {goal.clarity}%
                   </div>
-                  {canConst && <Constellation w={44} h={22} className={styles.constellationBadge} />}
+                  {hasConst ? (
+                    <span className={styles.constellationBadge} style={{ color: 'var(--text-hi)' }}>
+                      <ConstellationArt seed={goal.id} count={goal.constellation.star_count} symbol={goal.constellation.symbol} size={44} />
+                    </span>
+                  ) : canConst ? (
+                    <Constellation w={44} h={22} className={styles.constellationBadge} />
+                  ) : null}
                 </button>
               )
             })}
