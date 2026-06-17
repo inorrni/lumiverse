@@ -18,7 +18,9 @@ const modeToIntensity = (mode) => (mode === 'sparta' ? 'spartan' : 'easy')
 // 원본 galaxy(+planets+stars) → 화면용 goal/steps 형태.
 function deriveGoal(g) {
   const today = todayISO()
-  const planets = [...(g.planets || [])].sort((a, b) => a.order_idx - b.order_idx)
+  const planets = [...(g.planets || [])]
+    .filter((p) => p.status !== 'blackhole') // 블랙홀 보관 행성은 활성 화면에서 제외
+    .sort((a, b) => a.order_idx - b.order_idx)
   const steps = planets.map((p) => {
     const stars = [...(p.stars || [])].sort((a, b) => a.due_date.localeCompare(b.due_date))
     const done = stars.filter((s) => s.done).length
@@ -201,6 +203,90 @@ export function GoalProvider({ children }) {
     [reload],
   )
 
+  // 한 목표의 별 이력 평탄화 — 중간점검 통계/한줄평 주입용. rows(원본)에서 직접.
+  const historyOf = useCallback(
+    (galaxyId) => {
+      const g = rows.find((x) => x.id === galaxyId)
+      if (!g) return []
+      return (g.planets || [])
+        .filter((p) => p.status !== 'blackhole') // 블랙홀 행성은 점검 통계에서도 제외(화면과 일치)
+        .flatMap((p) =>
+        (p.stars || []).map((s) => ({
+          due_date: s.due_date,
+          done: !!s.done,
+          review: s.review ?? '',
+          title: s.title || p.name || '',
+        })),
+      )
+    },
+    [rows],
+  )
+
+  // 중간점검 결과 저장 — 점검 1회 = 1행(이력·학습 자산).
+  const saveMidCheck = useCallback(async (galaxyId, rec) => {
+    const { error } = await supabase.from('lumiverse_midchecks').insert({
+      galaxy_id: galaxyId,
+      state: rec.state,
+      verdict: rec.verdict,
+      reason: rec.reason ?? '',
+      message: rec.message ?? '',
+      completion_pct: rec.completionPct ?? null,
+      overall_pct: rec.overallPct ?? null,
+      streak: rec.streak ?? null,
+    })
+    if (error) console.error('saveMidCheck:', error.message)
+  }, [])
+
+  // 행성 블랙홀 보관 — 보완 시 미선택 행성. status 토글(보존), 활성 화면에서 숨김.
+  const blackholePlanet = useCallback(
+    async (galaxyId, planetId) => {
+      setRows((prev) =>
+        prev.map((g) =>
+          g.id !== galaxyId
+            ? g
+            : {
+                ...g,
+                planets: (g.planets || []).map((p) =>
+                  p.id === planetId ? { ...p, status: 'blackhole' } : p,
+                ),
+              },
+        ),
+      )
+      const { error } = await supabase
+        .from('lumiverse_planets')
+        .update({ status: 'blackhole' })
+        .eq('id', planetId)
+      if (error) await reload()
+    },
+    [reload],
+  )
+
+  // 행성 추가 — 보완 추천 행성. 오늘~디데이 기간에 todo_pattern 으로 별을 인스턴스화.
+  const addPlanet = useCallback(
+    async (galaxyId, { name, symbol = null, todo_pattern = null }) => {
+      const g = rows.find((x) => x.id === galaxyId)
+      if (!g) return
+      const start = todayISO()
+      const end = g.dday_end || start
+      const orderIdx = Math.max(-1, ...(g.planets || []).map((p) => p.order_idx ?? 0)) + 1
+      const { data: planet, error: pErr } = await supabase
+        .from('lumiverse_planets')
+        .insert({ galaxy_id: galaxyId, name, symbol, order_idx: orderIdx })
+        .select()
+        .single()
+      if (pErr) return
+      const stars = instantiateStars(todo_pattern, start, end, name).map((s) => ({
+        planet_id: planet.id,
+        galaxy_id: galaxyId,
+        due_date: s.due_date,
+        title: s.title,
+      }))
+      if (stars.length) await supabase.from('lumiverse_stars').insert(stars)
+      await reload()
+    },
+    [rows, reload],
+  )
+
   // 강도(모드) 변경 — galaxies.intensity 갱신.
   const setGoalMode = useCallback(
     async (galaxyId, mode) => {
@@ -231,8 +317,8 @@ export function GoalProvider({ children }) {
   }, [userId, reload])
 
   const value = useMemo(
-    () => ({ goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, setGoalMode, removeGoal, clearGoals }),
-    [goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, setGoalMode, removeGoal, clearGoals],
+    () => ({ goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, historyOf, saveMidCheck, blackholePlanet, addPlanet, setGoalMode, removeGoal, clearGoals }),
+    [goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, historyOf, saveMidCheck, blackholePlanet, addPlanet, setGoalMode, removeGoal, clearGoals],
   )
 
   return <GoalContext.Provider value={value}>{children}</GoalContext.Provider>
