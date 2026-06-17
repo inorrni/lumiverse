@@ -41,6 +41,9 @@ function deriveGoal(g) {
   // 별자리 — 임베드는 배열(또는 객체)로 올 수 있어 정규화. 없으면 null.
   const cRaw = g.constellation
   const constellation = Array.isArray(cRaw) ? cRaw[0] ?? null : cRaw ?? null
+  // 중간점검 — 가장 최근 저장값 1개(created_at desc).
+  const midCheck = (Array.isArray(g.midchecks) ? [...g.midchecks] : [])
+    .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))[0] ?? null
   return {
     id: g.id,
     title: g.name,
@@ -53,6 +56,7 @@ function deriveGoal(g) {
     starsEarned: steps.reduce((n, s) => n + s.done, 0),
     clarity: galaxyClarity(planets),
     constellation, // { symbol, star_count } | null
+    midCheck, // { state, verdict, message, created_at } | null (최근 저장 점검)
     steps,
   }
 }
@@ -72,7 +76,7 @@ export function GoalProvider({ children }) {
     // 임베드 별칭(planets:/stars:)으로 코드가 쓰는 키 이름은 그대로 유지.
     const { data, error } = await supabase
       .from('lumiverse_galaxies')
-      .select('*, planets:lumiverse_planets(*, stars:lumiverse_stars(*)), constellation:lumiverse_constellations(*)')
+      .select('*, planets:lumiverse_planets(*, stars:lumiverse_stars(*)), constellation:lumiverse_constellations(*), midchecks:lumiverse_midchecks(state, verdict, message, created_at)')
       .neq('status', 'blackhole')
       .order('created_at', { ascending: false })
     if (!error) setRows(data || [])
