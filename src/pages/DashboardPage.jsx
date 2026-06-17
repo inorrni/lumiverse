@@ -100,13 +100,16 @@ export default function DashboardPage() {
                   <Card pad={0} className={styles.universeCard}>
                     <div className={styles.cardHead}>
                       <span className={styles.headLeft}><Sparkle size={10} /><Kicker tone="hi">{goal.title}</Kicker></span>
-                      <span className={styles.viewAll} onClick={() => navigate('/app/universe')}>전체 보기 →</span>
+                      <div className={styles.headRight}>
+                        <button className={styles.addBtn} onClick={goNew}>＋ 새 목표</button>
+                        <span className={styles.viewAll} onClick={() => navigate('/app/universe')}>전체 보기 →</span>
+                      </div>
                     </div>
                     <div className={styles.universeBody}>
                       <UniverseMap
                         steps={goal.steps}
                         onAdd={goNew}
-                        onSelect={() => navigate(`/app/planet/${goal.id}`)}
+                        onSelect={(stepId) => navigate(`/app/planet/${stepId}`)}
                       />
                     </div>
                     <div className={styles.footer}>
