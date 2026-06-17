@@ -22,3 +22,8 @@
   inset: 0;
   background: rgba(6, 5, 4, 0.45);
 }
+
+/* 갱지 테마: 배경 이미지 자체가 종이질감(deckle 가장자리 포함)이므로
+   별도 워시/그레인 없이 깨끗하게 깐다. 본문은 진한 잉크라 dim 불필요.
+   data-theme 는 <html> 에 달리므로 :global 조상 선택자로 잡는다. */
+:global([data-theme='paper']) .dim { background: transparent; }

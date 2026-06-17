@@ -104,3 +104,32 @@
      갱지 카드와 우주 배경에서 재사용한다. */
   --grain-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.9'/%3E%3C/svg%3E");
 }
+
+/* ───────────────────────────────────────────────────────────────
+   갱지 테마 — "우주 먹"(다크)을 종이 위 잉크(라이트)로. 컴포넌트는
+   그대로 두고 의미 토큰만 오버라이드한다(설정 › 디자인에서 전환).
+   data-theme="ink" / 미설정 = 기본 먹 테마.
+   ─────────────────────────────────────────────────────────────── */
+[data-theme="paper"] {
+  --bg:      var(--paper);
+  /* 카드 표면은 배경보다 살짝 밝은 종이 — 은은한 단차로 떠 보이게 */
+  --surface: rgba(247, 241, 228, 0.62);
+
+  --text-hi:  var(--paper-ink);
+  --text-mid: var(--paper-mid);
+  --text-low: #8c8268;
+
+  --text-primary:   var(--paper-ink);
+  --text-secondary: var(--paper-mid);
+  --text-muted:     #8c8268;
+
+  --line:      var(--paper-line);
+  --line-soft: rgba(23, 19, 16, 0.09);
+
+  --accent: var(--paper-ink);
+
+  /* 종이 위에선 검은 그림자가 탁하다 — 따뜻하고 옅은 그림자로 교체 */
+  --shadow-sm: 0 1px 2px rgba(60, 48, 30, 0.08), 0 4px 14px rgba(60, 48, 30, 0.06);
+  --shadow-md: 0 6px 18px rgba(60, 48, 30, 0.14);
+  --shadow-lg: 0 12px 30px rgba(60, 48, 30, 0.18);
+}

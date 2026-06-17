@@ -44,3 +44,15 @@
   background: rgba(230, 221, 202, 0.26);
   color: rgba(23, 19, 16, 0.78);
 }
+
+/* ── 갱지 테마: 종이 배경에선 갱지 버튼이 묻히므로 잉크로 반전 ── */
+/* 주 액션은 따뜻한 잉크 브라운 솔리드(종이 글자)로 — 종이 위 강조색 */
+:global([data-theme='paper']) .primary {
+  background: var(--paper-ink);
+  color: var(--paper);
+}
+/* 흐린 채움도 잉크 톤으로 */
+:global([data-theme='paper']) .dim {
+  background: rgba(23, 19, 16, 0.10);
+  color: rgba(23, 19, 16, 0.66);
+}

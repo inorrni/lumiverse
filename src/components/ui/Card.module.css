@@ -20,3 +20,8 @@
   overflow: hidden;
   padding: var(--space-4);
 }
+
+/* 갱지 테마: 종이 카드가 종이 배경에 묻히지 않게 가는 잉크 보더로 정의 */
+:global([data-theme='paper']) .paper {
+  border: 1px solid var(--paper-line);
+}
