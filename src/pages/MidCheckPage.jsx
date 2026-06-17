@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useParams, useNavigate, Navigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import AppScreen from '../components/layout/AppScreen'
 import BottomNav from '../components/layout/BottomNav'
 import BackRow from '../components/ui/BackRow'
@@ -16,25 +16,6 @@ import { fetchMidCheck } from '../lib/api'
 import { useAsync } from '../hooks/useAsync'
 import { friendlyError } from '../lib/errors'
 import styles from './MidCheckPage.module.css'
-
-// 하단 "점검" 탭(id 없음) — 대표 목표 점검으로 보냄. 목표 없으면 안내.
-export function MidCheckIndex() {
-  const navigate = useNavigate()
-  const { goals, loading } = useGoals()
-  if (loading) return <AppScreen padTop={20} nav={<BottomNav />} />
-  if (goals.length === 0) {
-    return (
-      <AppScreen padTop={20} seed={71} nav={<BottomNav />}>
-        <EmptyView
-          title="아직 점검할 목표가 없어요"
-          message="첫 목표를 만들면 페이스를 점검해 줄게요."
-          action={<Button onClick={() => navigate('/mode')}>✦&ensp;첫 목표 만들기</Button>}
-        />
-      </AppScreen>
-    )
-  }
-  return <Navigate to={`/app/check/${goals[0].id}`} replace />
-}
 
 // 9 · AI 중간점검 — 목표별. §5-3 상태 레이블 판단 + 전체 진행률 + 보완/마무리 액션.
 export default function MidCheckPage() {
