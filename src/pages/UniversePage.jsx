@@ -1,4 +1,3 @@
-import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AppScreen from '../components/layout/AppScreen'
 import BottomNav from '../components/layout/BottomNav'
@@ -10,7 +9,6 @@ import { Sparkle } from '../components/ui/icons'
 import { Galaxy, BlackHole, Constellation } from '../components/ui/Celestial'
 import ConstellationArt from '../components/feature/constellation/ConstellationArt'
 import { useGoals } from '../store/GoalStore'
-import { useLocalStorage } from '../hooks/useLocalStorage'
 import styles from './UniversePage.module.css'
 
 const CONSTELLATION_MIN = 14
@@ -30,60 +28,9 @@ const SCATTER = [
 ]
 
 // 전체 우주 화면 — 내 모든 목표(은하계)를 산개 배치로 보여준다.
-// 은하계는 드래그로 위치 변경 가능 — 저장 위치는 localStorage 에 유지.
 export default function UniversePage() {
   const navigate = useNavigate()
   const { goals } = useGoals()
-  const [galaxyPos, setGalaxyPos] = useLocalStorage('lumiverse:galaxyPos', {})
-
-  const clusterRef = useRef(null)
-  const dragging = useRef(null)   // 드래그 중 상태
-  const clickBlocked = useRef(false) // 드래그 후 click 억제
-
-  const clusterH = goals.length <= 3 ? 320 : goals.length <= 6 ? 400 : 460
-
-  const handlePointerDown = (e, goalId, defaultX, defaultY) => {
-    if (e.button > 0) return
-    const saved = galaxyPos[goalId]
-    dragging.current = {
-      goalId,
-      el: e.currentTarget,
-      startClient: { x: e.clientX, y: e.clientY },
-      startPos: saved ?? { x: defaultX, y: defaultY },
-      hasMoved: false,
-      currentPos: null,
-    }
-  }
-
-  const handlePointerMove = (e) => {
-    const drag = dragging.current
-    if (!drag) return
-    const rect = clusterRef.current?.getBoundingClientRect()
-    if (!rect) return
-
-    const dx = (e.clientX - drag.startClient.x) / rect.width * 100
-    const dy = (e.clientY - drag.startClient.y) / rect.height * 100
-
-    if (!drag.hasMoved && Math.abs(dx) + Math.abs(dy) < 0.8) return
-    drag.hasMoved = true
-
-    const x = Math.max(8, Math.min(92, drag.startPos.x + dx))
-    const y = Math.max(5, Math.min(95, drag.startPos.y + dy))
-    drag.currentPos = { x, y }
-
-    drag.el.style.left = `${x}%`
-    drag.el.style.top = `${y}%`
-  }
-
-  const handlePointerUp = () => {
-    const drag = dragging.current
-    dragging.current = null
-    if (!drag) return
-    if (drag.hasMoved && drag.currentPos) {
-      clickBlocked.current = true
-      setGalaxyPos(prev => ({ ...prev, [drag.goalId]: drag.currentPos }))
-    }
-  }
 
   return (
     <AppScreen padTop={22} seed={77} density={100} nav={<BottomNav />} brightness={0.5}>
@@ -101,22 +48,12 @@ export default function UniversePage() {
         />
       ) : (
         <>
-          <div
-            ref={clusterRef}
-            className={styles.cluster}
-            style={{ minHeight: clusterH, touchAction: 'none' }}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerLeave={handlePointerUp}
-          >
+          <div className={styles.cluster}>
             {/* 배경 궤도 타원 */}
             <div className={styles.orbit} aria-hidden="true" />
 
             {goals.map((goal, i) => {
-              const [defaultLx, defaultLy] = SCATTER[i % SCATTER.length]
-              const saved = galaxyPos[goal.id]
-              const lx = saved?.x ?? defaultLx
-              const ly = saved?.y ?? defaultLy
+              const [lx, ly] = SCATTER[i % SCATTER.length]
               const hasConst = !!goal.constellation
               const canConst = goal.starsEarned >= CONSTELLATION_MIN
               const gSize = 85 + ((i * 31) % 6)        // 85~90px
@@ -126,11 +63,7 @@ export default function UniversePage() {
                   key={goal.id}
                   className={styles.galaxy}
                   style={{ left: `${lx}%`, top: `${ly}%` }}
-                  onPointerDown={(e) => handlePointerDown(e, goal.id, defaultLx, defaultLy)}
-                  onClick={() => {
-                    if (clickBlocked.current) { clickBlocked.current = false; return }
-                    navigate(`/app/planet/${goal.id}`)
-                  }}
+                  onClick={() => navigate(`/app/planet/${goal.id}`)}
                 >
                   <div className={styles.galaxyVisual}>
                     <Galaxy size={gSize} style={{ transform: `rotate(${gRotate}deg)` }} />
@@ -150,7 +83,6 @@ export default function UniversePage() {
                 </button>
               )
             })}
-
           </div>
 
           <div className={styles.blackholeRow}>
