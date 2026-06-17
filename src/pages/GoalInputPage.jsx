@@ -46,7 +46,7 @@ export default function GoalInputPage() {
 
   return (
     <AppScreen padTop={22} seed={31} density={55} dim nebula={false}>
-      <BackRow label="뒤로" to="/mode" />
+      <BackRow label="뒤로" to="/mode" state={{ mode, inputMethod }} />
       <Kicker>NEW GALAXY</Kicker>
       <h1 className={styles.title}>탐험의 목적지를<br />입력해 주세요</h1>
 
