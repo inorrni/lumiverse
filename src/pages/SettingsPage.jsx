@@ -47,7 +47,7 @@ export default function SettingsPage() {
   const signOut = () => { logout(); navigate('/') }
 
   return (
-    <AppScreen padTop={22} seed={91} density={45} dim nav={<BottomNav />}>
+    <AppScreen padTop={22} seed={91} density={45} nav={<BottomNav />}>
       <BackRow label="내 우주" to="/app" />
       <h1 className={styles.title}>설정</h1>
 
