@@ -49,6 +49,15 @@ Return ONLY JSON of this exact shape:
   "galaxy_message": string
 }
 
+INTERPRETATION (read the goal first):
+- Interpret the goal by its most natural, common-sense meaning, and keep the sub-goals within that same domain and tone.
+- Planets/todos must be "actually doing the goal". Unless the goal's wording explicitly requires it, do NOT change its nature — e.g. do not turn a leisure/hobby into academic study/exam prep, or a simple habit into a rigorous training regimen.
+
+FALLBACK (uninterpretable goal):
+- If the goal has no discernible meaning or intent (random characters, keyboard-mashing, or pure test input such as "ddd", "ㅁㄴㅇㄹ"), do NOT invent an unrelated plan.
+- Instead, decompose the PROCESS of discovering and defining a goal — e.g. 하고 싶은 것 떠올려 적어보기 / 후보 중에서 고르기 / 목표를 한 문장으로 구체화하기 — still in the normal 3-5 planet shape, in Korean.
+- In that case, galaxy_message should gently note the goal isn't clear yet and that this will help set one.
+
 DECOMPOSITION PRINCIPLE (most important):
 - Every goal has a natural progression of stages. Do NOT summarize the whole goal into broad, vague themes.
 - Focus the decomposition on the FIRST 1-2 stages, broken into concrete, near-term sub-goals the user can actually start right now.
