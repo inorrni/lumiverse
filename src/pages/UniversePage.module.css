@@ -1,10 +1,32 @@
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: var(--space-2) 0 var(--space-4);
+}
+
 .title {
   font-family: var(--font-serif);
   font-weight: var(--font-semibold);
   font-size: var(--text-xl);
   letter-spacing: -0.01em;
-  margin: var(--space-2) 0 var(--space-4);
+  margin: 0;
 }
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.addBtn:hover { border-color: var(--text-secondary); color: var(--text-primary); }
 
 /* 은하계들이 흩어진 무대 */
 .cluster {
@@ -32,12 +54,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 1px;
   background: none;
   border: none;
   cursor: pointer;
   padding: var(--space-1);
-  max-width: 100px;
+  max-width: 130px;
   text-align: center;
   transition: opacity 0.15s;
   z-index: 1;
@@ -47,6 +69,8 @@
 
 .galaxyVisual {
   position: relative;
+  overflow: hidden;
+  height: 84px; /* 100~102px 이미지 하단 빈 여백 제거 */
 }
 
 .sparkle {
@@ -62,8 +86,7 @@
   color: var(--text-primary);
   line-height: var(--line-snug);
   margin-top: 2px;
-  word-break: keep-all;
-  max-width: 90px;
+  white-space: nowrap;
 }
 
 .galaxyMeta {

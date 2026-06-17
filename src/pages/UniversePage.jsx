@@ -5,7 +5,7 @@ import BackRow from '../components/ui/BackRow'
 import Kicker from '../components/ui/Kicker'
 import Button from '../components/ui/Button'
 import { EmptyView } from '../components/ui/DataView'
-import { StarIcon, Sparkle } from '../components/ui/icons'
+import { Sparkle } from '../components/ui/icons'
 import { Galaxy, BlackHole, Constellation } from '../components/ui/Celestial'
 import { useGoals } from '../store/GoalStore'
 import styles from './UniversePage.module.css'
@@ -36,7 +36,10 @@ export default function UniversePage() {
   return (
     <AppScreen padTop={22} seed={77} density={100} nav={<BottomNav />}>
       <BackRow label="대시보드" to="/app" right={<Kicker>MY UNIVERSE</Kicker>} />
-      <h1 className={styles.title}>내 우주</h1>
+      <div className={styles.titleRow}>
+        <h1 className={styles.title}>내 우주</h1>
+        <button className={styles.addBtn} onClick={() => navigate('/mode')}>＋ 새 목표</button>
+      </div>
 
       {goals.length === 0 ? (
         <EmptyView
@@ -52,8 +55,9 @@ export default function UniversePage() {
 
             {goals.map((goal, i) => {
               const [lx, ly] = SCATTER[i % SCATTER.length]
-              const pips = Math.round((goal.clarity / 100) * 3)
               const canConst = goal.stars >= CONSTELLATION_MIN
+              const gSize = 100 + ((i * 31) % 3)        // 100~102px
+              const gRotate = ((i * 53) % 24) - 8       // -8°~+15°
               return (
                 <button
                   key={goal.id}
@@ -62,32 +66,18 @@ export default function UniversePage() {
                   onClick={() => navigate(`/app/planet/${goal.id}`)}
                 >
                   <div className={styles.galaxyVisual}>
-                    <Galaxy size={76} />
+                    <Galaxy size={gSize} style={{ transform: `rotate(${gRotate}deg)` }} />
                     {canConst && <Sparkle size={9} className={styles.sparkle} />}
                   </div>
                   <div className={styles.galaxyName}>{goal.title}</div>
                   <div className={styles.galaxyMeta}>
                     {goal.days ? `D-${goal.days}` : '∞'} · {goal.clarity}%
                   </div>
-                  <div className={styles.pips}>
-                    {[0, 1, 2].map((j) => (
-                      <StarIcon key={j} size={11} filled={j < pips} />
-                    ))}
-                  </div>
                   {canConst && <Constellation w={44} h={22} className={styles.constellationBadge} />}
                 </button>
               )
             })}
 
-            {/* 새 목표 추가 */}
-            <button
-              className={styles.addGalaxy}
-              style={{ left: `${SCATTER[goals.length % SCATTER.length][0]}%`, top: `${SCATTER[goals.length % SCATTER.length][1]}%` }}
-              onClick={() => navigate('/mode')}
-            >
-              <span className={styles.addCircle} aria-hidden="true">＋</span>
-              <span className={styles.addLabel}>새 목표</span>
-            </button>
           </div>
 
           <div className={styles.blackholeRow}>
