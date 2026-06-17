@@ -14,8 +14,14 @@
   transition: border-color 0.15s ease;
 }
 
+/* 포커스 표시는 래퍼 전체가 담당 — 내부 컨트롤의 전역 포커스 링(:focus-visible)은 끈다. */
 .wrap:focus-within {
   border-color: var(--text-secondary);
+}
+
+.input:focus,
+.input:focus-visible {
+  outline: none;
 }
 
 .input {

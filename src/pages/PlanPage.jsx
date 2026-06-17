@@ -45,6 +45,7 @@ export default function PlanPage() {
   const [planets, setPlanets] = useState([])
   const [editingId, setEditingId] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [excluded, setExcluded] = useState([]) // 리프레시로 이미 본 행성 이름 누적
 
   // 추천 모드만 AI 호출. 알아서 모드는 빈 목록에서 직접 입력.
   useEffect(() => {
@@ -67,6 +68,13 @@ export default function PlanPage() {
   }
   const updateTitle = (id, title) => setPlanets((p) => p.map((x) => (x.id === id ? { ...x, title } : x)))
   const removePlanet = (id) => setPlanets((p) => p.filter((x) => x.id !== id))
+
+  // 다른 추천 받기 — 현재(+이전) 행성 이름을 제외해 다른 분해를 재요청.
+  const refresh = () => {
+    const next = [...new Set([...excluded, ...planets.map((p) => p.title)])]
+    setExcluded(next)
+    run(goal, { days, intensity, exclude: next })
+  }
 
   const inRange = planets.length >= MIN_PLANETS && planets.length <= MAX_PLANETS
   const confirm = async () => {
@@ -98,6 +106,12 @@ export default function PlanPage() {
         </Card>
       )}
 
+      {!isAuto && planets.length > 0 && (
+        <Button variant="ghost" fullWidth onClick={refresh}>
+          ↻&ensp;다른 분해 추천받기
+        </Button>
+      )}
+
       <Button variant="ghost" fullWidth onClick={addPlanet} disabled={planets.length >= MAX_PLANETS}>
         ＋&ensp;행성 추가
       </Button>
@@ -126,7 +140,7 @@ export default function PlanPage() {
           status={status}
           data={data?.steps}
           error={friendlyError(error)}
-          onRetry={() => run(goal, { days, intensity })}
+          onRetry={() => run(goal, { days, intensity, exclude: excluded })}
           loading={<PlanLoading />}
           empty={
             <EmptyView

@@ -11,7 +11,7 @@ import styles from './GoalInputPage.module.css'
 
 const MAX = 30
 
-// 4 · 목표 입력 — 목표 + D-Day(자유). 별 개수 = 일수. 추천=AI분해 / 알아서=직접입력으로 넘긴다.
+// 4 · 목표 입력 — 목표 + D-Day(필수). 별 개수 = 일수. 추천=AI분해 / 알아서=직접입력으로 넘긴다.
 export default function GoalInputPage() {
   const navigate = useNavigate()
   const { state } = useLocation()
@@ -20,22 +20,28 @@ export default function GoalInputPage() {
   // /plan 에서 뒤로 올 때 state 로 복원 — 새로 들어오면 빈값.
   const [goal, setGoal] = useState(state?.goal || '')
   const [dday, setDday] = useState(state?.dday || '')
-  const [error, setError] = useState('')
+  const [error, setError] = useState('')        // 목표 에러
+  const [ddayError, setDdayError] = useState('') // 디데이 에러
 
   const days = useMemo(() => daysUntil(dday), [dday])
 
   const submit = (e) => {
     e.preventDefault()
+    setError(''); setDdayError('')
     const text = goal.trim()
     if (!text) {
       setError('탐험의 목적지(목표)를 한 줄로 적어 주세요.')
       return
     }
-    if (dday && days === null) {
-      setError('디데이는 오늘 이후 날짜로 골라 주세요.')
+    if (!dday) {
+      setDdayError('탐험 기간을 정할 디데이를 골라 주세요.')
       return
     }
-    navigate('/plan', { state: { goal: text, dday: dday || null, days, mode, inputMethod } })
+    if (days === null) {
+      setDdayError('디데이는 오늘 이후 날짜로 골라 주세요.')
+      return
+    }
+    navigate('/plan', { state: { goal: text, dday, days, mode, inputMethod } })
   }
 
   return (
@@ -57,11 +63,12 @@ export default function GoalInputPage() {
             right={<span className={styles.counter}>{goal.length}/{MAX}</span>}
           />
           <TextInput
-            label="D-Day (선택)"
+            label="D-Day"
             type="date"
             min={todayISO()}
             value={dday}
-            onChange={(e) => { setDday(e.target.value); if (error) setError('') }}
+            error={ddayError}
+            onChange={(e) => { setDday(e.target.value); if (ddayError) setDdayError('') }}
           />
         </div>
 
@@ -69,7 +76,7 @@ export default function GoalInputPage() {
         <div className={styles.preview}>
           <div className={styles.count}>
             <span className={styles.countNum}>{days ?? '—'}</span>
-            <span className={styles.countUnit}>{days ? '일의 별' : '디데이 자유'}</span>
+            <span className={styles.countUnit}>{days ? '일의 별' : '날짜를 골라 주세요'}</span>
           </div>
           <div className={styles.stars} aria-hidden="true">
             {Array.from({ length: Math.min(days || 0, 15) || 6 }).map((_, i) => (
@@ -80,7 +87,7 @@ export default function GoalInputPage() {
 
         <p className={styles.note}>
           <span aria-hidden="true">ⓘ</span>
-          별 14개 이상부터 별자리를 만들 수 있어요. 디데이는 자유 — 별 개수 = 일수.
+          별 14개 이상부터 별자리를 만들 수 있어요. 별 개수 = 디데이까지 남은 일수.
         </p>
 
         <div className={styles.spacer} />
