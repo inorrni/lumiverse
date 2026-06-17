@@ -153,7 +153,7 @@ export default function PlanetDetailPage() {
       />
 
       <div className={styles.hero}>
-        <Planet size={130} />
+        {step && <Planet size={130} />}
         <div className={styles.name}>{step ? step.title : goal.title}</div>
         <div className={styles.meta}>
           {step
@@ -181,7 +181,7 @@ export default function PlanetDetailPage() {
       ) : (
         <>
           <div className={styles.starsHead}>
-            <Kicker>오늘의 별</Kicker>
+            <Kicker>행성</Kicker>
             <span className={styles.starsCount}>{doneToday} / {goal.steps.length} 완료</span>
           </div>
           <Card pad="2px 16px" className={styles.list}>
@@ -189,10 +189,10 @@ export default function PlanetDetailPage() {
               <CheckRow
                 key={s.id}
                 title={s.title}
-                sub={s.detail}
                 done={s.checkedToday}
                 count={`${s.done}/${s.stars}`}
                 onToggle={() => toggleStarToday(goal.id, s.id)}
+                onPress={() => navigate(`/app/planet/${s.id}`)}
                 last={i === goal.steps.length - 1}
               />
             ))}
