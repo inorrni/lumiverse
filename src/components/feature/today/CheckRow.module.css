@@ -26,6 +26,29 @@
 }
 .main:active { opacity: 0.75; }
 
+/* onPress 분리 모드: 정적 행성 아이콘 + 본문 네비게이션 */
+.planetIcon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+}
+
+.bodyBtn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  padding: 0;
+}
+.bodyBtn:active { opacity: 0.75; }
+
 .star { color: var(--text-hi); }
 
 .body {
@@ -49,9 +72,17 @@
 
 .count {
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   color: var(--text-low);
+}
+
+.countStar {
+  color: var(--text-low);
+  opacity: 0.7;
 }
 
 /* 한 줄 회고 토글 버튼 — count 자리. 둥근네모 테두리로 토글 버튼.

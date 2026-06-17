@@ -22,6 +22,18 @@ export function StarIcon({ filled = true, size = 18, className, style }) {
   );
 }
 
+// 행성 아이콘 — 채워진 원 + 타원 고리. CheckRow 행성 목록 전용 정적 아이콘.
+export function PlanetIcon({ size = 18, className, style }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true"
+      className={className} style={{ flex: 'none', ...style }}>
+      <circle cx="12" cy="12" r="5.8" fill="currentColor" />
+      <ellipse cx="12" cy="12" rx="10.5" ry="3.4" fill="none"
+        stroke="currentColor" strokeWidth="1.4" transform="rotate(-28 12 12)" />
+    </svg>
+  );
+}
+
 // 한 줄 회고(메모) 아이콘 — 연필. filled=true(회고 있음)면 채워서 강조.
 export function NoteIcon({ filled = false, size = 18, className, style }) {
   return (
