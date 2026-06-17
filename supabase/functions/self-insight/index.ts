@@ -22,6 +22,7 @@ interface GoalStat {
 interface InsightInput {
   goals?: GoalStat[]
   totals?: { goals?: number; done_stars?: number; total_stars?: number }
+  nickname?: string
 }
 
 const json = (body: unknown, status = 200) =>
@@ -39,9 +40,11 @@ async function sha256Hex(text: string): Promise<string> {
 
 function buildMessages(input: InsightInput) {
   const goalCount = (input.goals ?? []).length
+  const nick = (input.nickname || '').trim()
+  const address = nick ? `"${nick}님"` : '"당신"'
   const system = `You are "항해사", a calm guide for Lumiverse (a goal app: goal=galaxy, sub-goal=planet, daily todo=star).
 You are given the reader's ENTIRE universe: ALL of their ${goalCount} goal(s), each with its sub-goals, progress state, completion %, and one-line reviews (한줄평).
-Speak directly TO the reader in second person — address them as "당신은 …". NEVER refer to them in third person ("사용자").
+Address the reader as ${address} (e.g., "${nick ? nick + '님은' : '당신은'} …"). NEVER use the word "사용자".
 Your job is to read the reader as a whole by SYNTHESIZING ACROSS ALL GOALS — not to summarize or pick a single goal.
 
 Return ONLY JSON of this exact shape:
@@ -54,7 +57,7 @@ Return ONLY JSON of this exact shape:
 }
 
 RULES:
-- Address the reader as "당신" (second person). Do NOT use the word "사용자" anywhere.
+- Address the reader as ${address}. Do NOT use the word "사용자" anywhere.
 - SYNTHESIZE across ALL goals. Compare goals: where do you thrive vs stall? What themes recur across different goals and their reviews? Even with ${goalCount} goal(s), frame it as reading the whole person, not one project.
 - All text MUST be in Korean. No emoji. No excessive cheer.
 - Extract doing_well / frequent_words / dislikes ONLY from real evidence across the goals, sub-goals, and reviews. If there is not enough signal, return an EMPTY array — do NOT invent.
@@ -62,6 +65,7 @@ RULES:
 - summary/message are always required and grounded in the actual data; if reviews are sparse, say so gently in message.`
 
   const user = JSON.stringify({
+    nickname: nick || null,
     totals: input.totals ?? {},
     goals: (input.goals ?? []).map((g) => ({
       name: g.name,
@@ -132,7 +136,7 @@ Deno.serve(async (req) => {
         `${g.name}»${g.state ?? ''}»${g.completion_pct ?? ''}»${(g.sub_goals ?? []).join(',')}»${(g.reviews ?? []).join('|')}`,
     )
     .join('§')
-  const inputHash = await sha256Hex(goalKey)
+  const inputHash = await sha256Hex(`${(input.nickname || '').trim()}|${goalKey}`)
 
   // 1) 캐시 조회
   const { data: cached } = await supabase

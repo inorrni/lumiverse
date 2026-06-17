@@ -73,11 +73,12 @@ export async function fetchMidCheck({ goalName, intensity, state, verdict, stats
 // 내 우주 전체 점검(자기 인사이트) — Edge Function(self-insight) 호출.
 // 모든 목표의 전체 내용(세부목표·진행·한줄평)을 교차 종합해 사용자를 판단.
 // args: { goals:[{name,intensity,state,completion_pct,sub_goals,reviews}], totals }
-export async function fetchSelfInsight({ goals, totals } = {}) {
+export async function fetchSelfInsight({ goals, totals, nickname } = {}) {
   const { data, error } = await supabase.functions.invoke('self-insight', {
     body: {
       goals: Array.isArray(goals) ? goals : [],
       totals: totals || {},
+      nickname: nickname || '',
     },
   })
   if (error) throw error
