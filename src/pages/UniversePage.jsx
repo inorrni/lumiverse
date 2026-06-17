@@ -17,11 +17,11 @@ const CONSTELLATION_MIN = 14
 // 목표 개수가 늘어나면 순환.
 const SCATTER = [
   [50, 12],
-  [18, 35],
-  [82, 30],
-  [32, 62],
-  [70, 58],
-  [50, 80],
+  [18, 37],
+  [82, 33],
+  [32, 64],
+  [70, 60],
+  [50, 81],
   [14, 68],
   [86, 66],
   [50, 44],
@@ -32,10 +32,8 @@ export default function UniversePage() {
   const navigate = useNavigate()
   const { goals } = useGoals()
 
-  const clusterH = goals.length <= 3 ? 320 : goals.length <= 6 ? 400 : 460
-
   return (
-    <AppScreen padTop={22} seed={77} density={100} nav={<BottomNav />}>
+    <AppScreen padTop={22} seed={77} density={100} nav={<BottomNav />} brightness={0.5}>
       <BackRow label="대시보드" to="/app" right={<Kicker>MY UNIVERSE</Kicker>} />
       <div className={styles.titleRow}>
         <h1 className={styles.title}>내 우주</h1>
@@ -50,7 +48,7 @@ export default function UniversePage() {
         />
       ) : (
         <>
-          <div className={styles.cluster} style={{ minHeight: clusterH }}>
+          <div className={styles.cluster} style={{ minHeight: goals.length <= 3 ? 320 : goals.length <= 6 ? 400 : 460 }}>
             {/* 배경 궤도 타원 */}
             <div className={styles.orbit} aria-hidden="true" />
 
@@ -58,7 +56,7 @@ export default function UniversePage() {
               const [lx, ly] = SCATTER[i % SCATTER.length]
               const hasConst = !!goal.constellation
               const canConst = goal.starsEarned >= CONSTELLATION_MIN
-              const gSize = 100 + ((i * 31) % 3)        // 100~102px
+              const gSize = 85 + ((i * 31) % 6)        // 85~90px
               const gRotate = ((i * 53) % 24) - 8       // -8°~+15°
               return (
                 <button
@@ -85,7 +83,6 @@ export default function UniversePage() {
                 </button>
               )
             })}
-
           </div>
 
           <div className={styles.blackholeRow}>

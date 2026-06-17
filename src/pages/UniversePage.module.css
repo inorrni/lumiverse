@@ -54,7 +54,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
+  gap: 5px;
   background: none;
   border: none;
   cursor: pointer;
@@ -70,7 +70,7 @@
 .galaxyVisual {
   position: relative;
   overflow: hidden;
-  height: 84px; /* 100~102px 이미지 하단 빈 여백 제거 */
+  height: 71px; /* 85~90px 이미지 하단 빈 여백 제거 */
 }
 
 .sparkle {
@@ -93,6 +93,9 @@
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--text-low);
+}
+:global(:not([data-theme='paper'])) .galaxyMeta {
+  color: var(--text-secondary);
 }
 
 .pips {
