@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import AppScreen from '../components/layout/AppScreen'
 import BackRow from '../components/ui/BackRow'
 import Kicker from '../components/ui/Kicker'
@@ -32,8 +32,10 @@ function ModeCard({ mode, selected, onSelect }) {
 // 강도는 AI 분해에만 쓰이므로 알아서 모드에선 감춘다. 기본 프리선택(추천·살살)으로 스킵 방지.
 export default function ModePage() {
   const navigate = useNavigate()
-  const [mode, setMode] = useState('gentle')
-  const [inputMethod, setInputMethod] = useState('recommend')
+  const { state } = useLocation()
+  // /goal 에서 뒤로 올 때 이전 선택 복원 — 새로 들어오면 기본값(추천·살살).
+  const [mode, setMode] = useState(state?.mode || 'gentle')
+  const [inputMethod, setInputMethod] = useState(state?.inputMethod || 'recommend')
 
   const next = () => navigate('/goal', { state: { mode, inputMethod } })
 
