@@ -18,6 +18,18 @@
 }
 
 
+/* 픽셀 별 — 완료 투두 1개당 1개씩 배경에 쌓임. 최대 50개. */
+.pixelStar {
+  position: absolute;
+  pointer-events: none;
+  color: #fff;
+  opacity: 0.75;
+  z-index: 0;
+  line-height: 1;
+  font-family: monospace;
+  transform: translate(-50%, -50%);
+}
+
 /* 행성 — 타원 궤도 위 절대 배치. transform으로 자기 자신 기준 중앙 정렬 */
 .planet {
   position: absolute;
