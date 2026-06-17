@@ -36,3 +36,12 @@
   transform: translateX(17px);
   background: var(--ink-0);
 }
+
+/* 갱지 테마: 켜짐 트랙을 잉크로 채우고 손잡이는 종이색 — 종이 위 대비 확보 */
+:global([data-theme='paper']) .on {
+  background: var(--paper-ink);
+  border-color: var(--paper-ink);
+}
+:global([data-theme='paper']) .on .knob {
+  background: var(--paper);
+}

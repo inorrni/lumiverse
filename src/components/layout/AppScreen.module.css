@@ -37,3 +37,9 @@
   padding-bottom: env(safe-area-inset-bottom);
   background: rgba(6, 5, 4, 0.94);
 }
+
+/* 갱지 테마: 검은 내비바 대신 종이 톤 + 블러로 본문과 이어지게 */
+:global([data-theme='paper']) .nav {
+  background: rgba(233, 225, 207, 0.9);
+  backdrop-filter: blur(10px);
+}

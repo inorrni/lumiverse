@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AppScreen from '../components/layout/AppScreen'
 import BottomNav from '../components/layout/BottomNav'
@@ -9,6 +10,7 @@ import { StarIcon } from '../components/ui/icons'
 import { useAuth } from '../store/AuthStore'
 import { useGoals } from '../store/GoalStore'
 import { useLocalStorage } from '../hooks/useLocalStorage'
+import { THEME_KEY, applyTheme } from '../lib/theme'
 import styles from './SettingsPage.module.css'
 
 function SetRow({ label, children, last = false }) {
@@ -20,14 +22,15 @@ function SetRow({ label, children, last = false }) {
   )
 }
 
-function ThemeSwatch({ label, paper = false, on = false }) {
+function ThemeSwatch({ label, paper = false, on = false, onSelect }) {
   return (
-    <div className={styles.swatchWrap}>
+    <button type="button" className={styles.swatchWrap} onClick={onSelect} aria-pressed={on}>
       <span className={`${styles.swatch} ${paper ? styles.swatchPaper : styles.swatchInk} ${on ? styles.swatchOn : ''}`}>
-        <StarIcon size={15} filled style={{ color: paper ? 'var(--paper-ink)' : 'var(--text-hi)' }} />
+        {/* 미리보기 색은 활성 테마와 무관하게 고정한다 (먹 스와치 별은 항상 밝게) */}
+        <StarIcon size={15} filled style={{ color: paper ? 'var(--paper-ink)' : '#ece9e2' }} />
       </span>
       <span className={`${styles.swatchLabel} ${on ? styles.swatchLabelOn : ''}`}>{label}</span>
-    </div>
+    </button>
   )
 }
 
@@ -40,6 +43,10 @@ export default function SettingsPage() {
     todo: true, planet: true, constellation: false,
   })
   const set = (key) => (v) => setPrefs((p) => ({ ...p, [key]: v }))
+
+  // 디자인 테마(먹/갱지) — 선택 즉시 저장하고 <html> 에 반영한다.
+  const [theme, setTheme] = useLocalStorage(THEME_KEY, 'ink')
+  useEffect(() => { applyTheme(theme) }, [theme])
 
   const resetData = () => {
     if (window.confirm('내 우주의 모든 목표를 삭제할까요? 되돌릴 수 없어요.')) clearGoals()
@@ -62,8 +69,8 @@ export default function SettingsPage() {
 
       <Kicker>디자인 · 흑백 + 갱지 프리셋</Kicker>
       <div className={styles.swatches}>
-        <ThemeSwatch label="먹 (기본)" on />
-        <ThemeSwatch label="갱지" paper />
+        <ThemeSwatch label="먹 (기본)" on={theme === 'ink'} onSelect={() => setTheme('ink')} />
+        <ThemeSwatch label="갱지" paper on={theme === 'paper'} onSelect={() => setTheme('paper')} />
       </div>
 
       <Kicker>일반</Kicker>
