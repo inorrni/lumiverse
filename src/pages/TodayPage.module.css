@@ -12,6 +12,57 @@
   margin-bottom: var(--space-4);
 }
 
+/* 목표(은하)별 양피지 드롭다운 */
+.group {
+  margin-bottom: var(--space-3);
+}
+
+.groupHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4) var(--space-5);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--paper-ink);
+}
+
+.groupTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chev {
+  flex: none;
+  color: var(--paper-mid);
+  transition: transform 0.18s ease;
+}
+.chevOpen {
+  transform: rotate(90deg);
+}
+
+.groupCount {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--paper-mid);
+}
+
+.groupBody {
+  padding: 0 var(--space-5) var(--space-1);
+}
+
 /* 별 한 줄(체크 + 회고) 묶음 — 갱지 카드 안에서 항목 사이 잉크 구분선 */
 .item {
   border-bottom: 1px solid var(--paper-line);
