@@ -1,0 +1,24 @@
+/* 전체 뷰포트 앰비언트 배경 — 중앙 앱 컬럼 뒤에 고정으로 깔린다.
+   컬럼이 화면을 꽉 채우는 좁은 화면(폰)에선 컬럼에 가려 보이지 않고,
+   넓은 화면(펼친 폴드·태블릿·데스크톱)에서만 양옆 여백을 우주로 채운다. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;            /* 컬럼(.screen)보다 뒤 — App.jsx에서 Routes보다 먼저 렌더 */
+  overflow: hidden;
+  background: var(--bg);
+  pointer-events: none;
+}
+
+/* 사이드는 보조 배경이라 살짝 흐리고 어둡게 깔아 가운데 앱 컬럼에 시선이
+   모이게 한다. blur로 가장자리가 비지 않도록 살짝 확대. */
+.image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: blur(14px) brightness(0.42);
+  transform: scale(1.12);
+}

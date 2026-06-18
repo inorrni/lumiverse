@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
+import AppBackdrop from './components/layout/AppBackdrop'
 import RequireAuth from './components/RequireAuth'
 import LandingPage from './pages/LandingPage'
 import AuthPage from './pages/AuthPage'
@@ -21,6 +22,10 @@ const DesignCanvasApp = lazy(() => import('./sample/DesignCanvasApp'))
 
 export default function App() {
   return (
+    <>
+    {/* 전체 화면 우주 배경 — 넓은 화면에서 가운데 앱 컬럼 양옆을 채운다.
+        Routes보다 먼저 렌더해 컬럼 뒤(z-index 0)에 깔리게 한다. */}
+    <AppBackdrop />
     <Routes>
       {/* 공개: 랜딩 → 로그인 */}
       <Route path="/" element={<LandingPage />} />
@@ -60,5 +65,6 @@ export default function App() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   )
 }
