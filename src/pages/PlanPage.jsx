@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import AppScreen from '../components/layout/AppScreen'
 import BackRow from '../components/ui/BackRow'
@@ -54,6 +54,9 @@ export default function PlanPage() {
   const [planets, setPlanets] = useState(() => (hasDraft ? planDraft.planets : []))
   const [editingId, setEditingId] = useState(null)
   const [saving, setSaving] = useState(false)
+  // 동기 가드 — setSaving(state)는 리렌더 전까지 버튼을 못 막아, 빠른 더블탭이
+  // confirm 을 두 번 실행해 은하가 중복 생성되던 문제를 막는다(ref 는 즉시 반영).
+  const savingRef = useRef(false)
   // 리프레시로 이미 본 행성 이름 누적
   const [excluded, setExcluded] = useState(() => (hasDraft ? planDraft.excluded : []))
 
@@ -95,12 +98,15 @@ export default function PlanPage() {
 
   const inRange = planets.length >= MIN_PLANETS && planets.length <= MAX_PLANETS
   const confirm = async () => {
+    if (savingRef.current) return // 이미 생성 진행 중 — 중복 호출 차단
+    savingRef.current = true
     setSaving(true)
     try {
       await addGoal({ goal, planets, dday, mode, inputMode: isAuto ? 'self' : 'ai' })
       planDraft = null // 우주 생성 완료 — 새 목표 흐름에 이전 draft가 새지 않게 비움
       navigate('/app')
     } catch {
+      savingRef.current = false
       setSaving(false)
     }
   }
