@@ -34,8 +34,8 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-      # SPA 새로고침/딥링크 폴백 — 알 수 없는 경로도 앱 셸을 받게
-      - run: cp dist/index.html dist/404.html
+      # SPA 딥링크 폴백은 public/404.html(리다이렉트 방식)이 담당 → Vite가 dist로 복사.
+      # (이전의 cp index.html 404.html 은 앱 셸을 status 404로 내려 Lighthouse가 거부했음)
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
