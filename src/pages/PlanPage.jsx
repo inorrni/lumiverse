@@ -102,8 +102,13 @@ export default function PlanPage() {
     savingRef.current = true
     setSaving(true)
     try {
-      await addGoal({ goal, planets, dday, mode, inputMode: isAuto ? 'self' : 'ai' })
+      const newId = await addGoal({ goal, planets, dday, mode, inputMode: isAuto ? 'self' : 'ai' })
       planDraft = null // 우주 생성 완료 — 새 목표 흐름에 이전 draft가 새지 않게 비움
+      // 새 목표를 대시보드가 바로 보여주도록 '마지막 본 목표'를 새 목표로 갱신.
+      // (안 하면 이전 목표 복원 로직이 옛 목표를 띄워, 새 목표가 화살표 뒤로 가림)
+      if (newId) {
+        try { localStorage.setItem('lumiverse:lastGoalId', JSON.stringify(newId)) } catch { /* 무시 */ }
+      }
       navigate('/app')
     } catch {
       savingRef.current = false
