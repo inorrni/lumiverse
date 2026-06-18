@@ -28,121 +28,84 @@
 }
 .addBtn:hover { border-color: var(--text-secondary); color: var(--text-primary); }
 
-/* 은하계들이 흩어진 무대 */
-.cluster {
-  position: relative;
-  width: 100%;
-}
-
-/* 배경 궤도 타원 */
-.orbit {
-  position: absolute;
-  left: 10%;
-  top: 8%;
-  width: 80%;
-  height: 60%;
-  border: 1px solid var(--line-soft);
-  border-radius: 50%;
-  transform: rotate(-6deg);
-  pointer-events: none;
-}
-
-/* 은하계 카드 — 산개 절대 배치 */
-.galaxy {
-  position: absolute;
-  transform: translate(-50%, -50%);
+/* 본문 — 남은 높이를 채우는 세로 플렉스(scene 위 / footer 아래 고정) */
+.body {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: var(--space-1);
-  max-width: 130px;
-  text-align: center;
-  transition: opacity 0.15s;
-  z-index: 1;
+  min-height: 0;
 }
-.galaxy:hover { opacity: 0.8; }
-.galaxy:active { opacity: 0.55; }
 
-.galaxyVisual {
+/* 3D 우주 무대 — Three.js 캔버스가 남은 공간을 채운다 */
+.scene {
   position: relative;
-  overflow: hidden;
-  height: 71px; /* 85~90px 이미지 하단 빈 여백 제거 */
+  flex: 1;
+  min-height: 240px;
+  width: 100%;
+  touch-action: none; /* 캔버스 회전/줌 제스처가 페이지 스크롤에 먹히지 않게 */
 }
 
-.sparkle {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  color: var(--accent, var(--text-primary));
-}
-
-.galaxyName {
+/* 로딩 폴백 */
+.loading {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-mono);
   font-size: var(--text-sm);
-  font-weight: var(--font-bold);
-  color: var(--text-primary);
-  line-height: var(--line-snug);
-  margin-top: 2px;
-  white-space: nowrap;
+  color: var(--text-low);
 }
 
-.galaxyMeta {
+/* 하단 고정 영역 — 힌트 + 블랙홀 보관함 */
+.footer {
+  flex: none;
+  margin-top: var(--space-2);
+}
+
+/* 조작 힌트 */
+.hint {
+  margin: 0 0 var(--space-2);
+  text-align: center;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--text-low);
-}
-:global(:not([data-theme='paper'])) .galaxyMeta {
-  color: var(--text-secondary);
+  pointer-events: none;
 }
 
-.pips {
-  display: flex;
-  gap: 3px;
-  color: var(--text-secondary);
-}
-
-.constellationBadge {
-  opacity: 0.7;
-}
-
-/* 새 목표 추가 */
-.addGalaxy {
+/* 상단 중앙 고정 목표명 — hover한 은하 이름(줌/회전 무관, 항상 또렷) */
+.activeName {
   position: absolute;
-  transform: translate(-50%, -50%);
+  top: 10px;
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-2);
-  background: none;
-  border: none;
-  cursor: pointer;
-  z-index: 1;
-  transition: opacity 0.15s;
+  gap: 2px;
+  text-align: center;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
 }
-.addGalaxy:hover { opacity: 0.7; }
-
-.addCircle {
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  border: 1.5px dashed var(--line);
-  display: grid;
-  place-items: center;
-  font-size: 22px;
-  color: var(--text-low);
-  transition: border-color 0.15s, color 0.15s;
+.activeNameOn {
+  opacity: 1;
+  transform: translateY(0);
 }
-.addGalaxy:hover .addCircle {
-  border-color: var(--text-secondary);
-  color: var(--text-secondary);
+.activeTitle {
+  font-family: var(--font-serif);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-lg);
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 }
-
-.addLabel {
+.activeMeta {
+  font-family: var(--font-mono);
   font-size: var(--text-xs);
-  color: var(--text-low);
+  color: var(--text-secondary);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 }
 
 /* 블랙홀 보관함 */
