@@ -13,6 +13,7 @@ import UniverseMap from '../components/feature/universe/UniverseMap'
 import TodayRow from '../components/feature/today/TodayRow'
 import ConstellationArt from '../components/feature/constellation/ConstellationArt'
 import ConstellationModal from '../components/feature/constellation/ConstellationModal'
+import ConstellationViewModal from '../components/feature/constellation/ConstellationViewModal'
 import { useGoals } from '../store/GoalStore'
 import { useAuth } from '../store/AuthStore'
 import { useLocalStorage } from '../hooks/useLocalStorage'
@@ -42,6 +43,7 @@ export default function DashboardPage() {
   const [lastGoalId, setLastGoalId] = useLocalStorage('lumiverse:lastGoalId', null)
   const restoredRef = useRef(false)
   const [constModalGoal, setConstModalGoal] = useState(null)
+  const [viewConstGoal, setViewConstGoal] = useState(null)
 
   const handleScroll = () => {
     const el = carouselRef.current
@@ -159,9 +161,9 @@ export default function DashboardPage() {
                     <div className={styles.footer}>
                       <div className={styles.footerLeft}>
                         {hasConst ? (
-                          <span className={styles.constArt}>
+                          <button type="button" className={styles.constArt} onClick={() => setViewConstGoal(goal)} aria-label="별자리 크게 보기">
                             <ConstellationArt seed={goal.id} count={goal.constellation.star_count} symbol={goal.constellation.symbol} size={40} />
-                          </span>
+                          </button>
                         ) : (
                           <Constellation w={66} h={32} dim />
                         )}
@@ -249,6 +251,9 @@ export default function DashboardPage() {
 
       {constModalGoal && (
         <ConstellationModal goal={constModalGoal} onClose={() => setConstModalGoal(null)} />
+      )}
+      {viewConstGoal && (
+        <ConstellationViewModal goal={viewConstGoal} onClose={() => setViewConstGoal(null)} />
       )}
     </AppScreen>
   )
