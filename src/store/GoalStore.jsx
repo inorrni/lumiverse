@@ -25,6 +25,8 @@ function deriveGoal(g) {
     const stars = [...(p.stars || [])].sort((a, b) => a.due_date.localeCompare(b.due_date))
     const done = stars.filter((s) => s.done).length
     const todayStar = stars.find((s) => s.due_date === today)
+    const checkedDays = stars.map((s) => !!s.done)
+    const todayIdx = stars.findIndex((s) => s.due_date === today)
     return {
       id: p.id,
       title: p.name,
@@ -32,6 +34,8 @@ function deriveGoal(g) {
       symbol: p.symbol,
       stars: stars.length, // 목표 별 수 = 배정된 별 개수
       done, // 완료한 별 수
+      checkedDays, // 날짜순 달성 여부 배열
+      todayIdx,    // 오늘 별의 인덱스 (-1이면 오늘 별 없음)
       clarity: planetClarity(stars),
       todayStarId: todayStar?.id ?? null,
       checkedToday: !!todayStar?.done,

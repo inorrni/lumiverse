@@ -12,8 +12,9 @@ import { useTheme } from '../hooks/useTheme'
 import styles from './PlanetDetailPage.module.css'
 
 // SVG 오솔길 트레일 — 대각선 1줄에 달성 노드 4개 (STEP=3)
-function Trail({ done, total }) {
+function Trail({ checkedDays, todayIdx }) {
   const theme = useTheme()
+  const total = Math.min((checkedDays || []).length, 30)
   if (!total) return null
 
   const W = 300, PAD = 18
@@ -41,29 +42,29 @@ function Trail({ done, total }) {
 
   const lastPos = pos(total - 1)
   const H = lastPos.y + GR + PAD
-  const isAllDone = done >= total
+  const isAllDone = checkedDays.slice(0, total).every(Boolean)
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block', overflow: 'visible' }}>
-      {/* 연결선 */}
+      {/* 연결선 — 오늘 이전은 실선, 이후는 점선 */}
       {Array.from({ length: total - 1 }, (_, i) => {
         const p1 = pos(i), p2 = pos(i + 1)
-        const lineIsDone = i < done
-        const lc = lineIsDone ? doneLine : futureLine
-        const lo = lineIsDone ? doneOp : futureOp
+        const lineIsInPast = todayIdx >= 0 ? i < todayIdx : false
+        const lc = lineIsInPast ? doneLine : futureLine
+        const lo = lineIsInPast ? doneOp : futureOp
         return (
           <line key={`l${i}`}
             x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
-            stroke={lc} strokeWidth="1"
-            strokeDasharray={lineIsDone ? '' : '4 3'}
+            stroke={lc} strokeWidth="2"
+            strokeDasharray={lineIsInPast ? '' : '4 3'}
             opacity={lo} />
         )
       })}
 
-      {/* 달성 노드 */}
+      {/* 달성 노드 — 날짜별 달성 여부로 채움/빈 노드 결정 */}
       {Array.from({ length: total }, (_, i) => {
-        const isDone = i < done || isAllDone
-        const isCurrent = i === done && !isAllDone
+        const isDone = isAllDone || !!checkedDays[i]
+        const isCurrent = i === todayIdx && todayIdx >= 0 && !isAllDone
         const isGoal = i === total - 1
         const { x, y } = pos(i)
         const r = isGoal ? GR : R
@@ -174,7 +175,10 @@ export default function PlanetDetailPage() {
             <span className={styles.trailCount}>{step.done} / {step.stars} 완료</span>
           </div>
           <div className={styles.trail}>
-            <Trail done={step.done} total={Math.min(step.stars, 30)} />
+            <Trail
+                checkedDays={step.checkedDays.slice(0, 30)}
+                todayIdx={step.todayIdx >= 0 && step.todayIdx < 30 ? step.todayIdx : -1}
+              />
           </div>
         </>
       ) : (
