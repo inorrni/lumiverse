@@ -1,7 +1,11 @@
 .nav {
   display: flex;
   border-top: 1px solid var(--line-soft);
-  padding: var(--space-2) var(--space-2) var(--space-3);
+  /* 좌우 세이프에어리어 존중 — 폴드폰/노치 측면에서 탭이 잘리지 않게 */
+  padding: var(--space-2)
+           max(var(--space-2), env(safe-area-inset-right))
+           var(--space-3)
+           max(var(--space-2), env(safe-area-inset-left));
 }
 
 .tab {
