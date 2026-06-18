@@ -59,10 +59,29 @@
   gap: 3px;
 }
 
+/* 제목 + 인라인 메타(행성명 옆 별 카운트) */
+.titleLine {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
 .title {
   font-size: var(--text-sm);
   font-weight: var(--font-bold);
   color: var(--text-hi);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 체크된 별/총 별 — 행성명 옆 작게 */
+.meta {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-low);
 }
 
 .sub {
@@ -113,6 +132,7 @@
 .ink .star { color: var(--paper-ink); }
 .ink .title { color: var(--paper-ink); }
 .ink .sub { color: var(--paper-mid); }
+.ink .meta { color: var(--paper-mid); }
 .ink .count { color: var(--paper-mid); }
 .ink .reviewBtn { color: var(--paper-mid); border-color: var(--paper-line); }
 .ink .reviewBtn.hasReview { color: var(--paper-ink); }

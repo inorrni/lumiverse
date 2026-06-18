@@ -1,3 +1,9 @@
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
 .title {
   margin: var(--space-3) 0 var(--space-1);
   font-family: var(--font-serif);

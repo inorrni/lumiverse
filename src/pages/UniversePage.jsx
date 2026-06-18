@@ -1,3 +1,4 @@
+import { lazy, Suspense, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AppScreen from '../components/layout/AppScreen'
 import BottomNav from '../components/layout/BottomNav'
@@ -5,36 +6,27 @@ import BackRow from '../components/ui/BackRow'
 import Kicker from '../components/ui/Kicker'
 import Button from '../components/ui/Button'
 import { EmptyView } from '../components/ui/DataView'
-import { Sparkle } from '../components/ui/icons'
-import { Galaxy, BlackHole, Constellation } from '../components/ui/Celestial'
-import ConstellationArt from '../components/feature/constellation/ConstellationArt'
+import { BlackHole } from '../components/ui/Celestial'
 import { useGoals } from '../store/GoalStore'
 import styles from './UniversePage.module.css'
 
-const CONSTELLATION_MIN = 14
+// Three.js 번들은 무거우므로 우주 화면 진입 시에만 로드(코드 스플릿).
+const UniverseScene = lazy(() => import('../components/feature/universe/UniverseScene'))
 
-// 은하계마다 산개 배치 좌표 [x%, y%] — 자연스러운 우주 느낌.
-// 목표 개수가 늘어나면 순환.
-const SCATTER = [
-  [50, 12],
-  [18, 37],
-  [82, 33],
-  [32, 64],
-  [70, 60],
-  [50, 81],
-  [14, 68],
-  [86, 66],
-  [50, 44],
-]
-
-// 전체 우주 화면 — 내 모든 목표(은하계)를 산개 배치로 보여준다.
+// 전체 우주 화면 — 내 모든 목표(은하계)를 Three.js 실시간 3D로 보여준다.
+// 큰 점=행성(step), 작은 점=별(누적 달성), 은하계=목표. 클릭 시 행성상세로 이동.
 export default function UniversePage() {
   const navigate = useNavigate()
   const { goals } = useGoals()
+  // hover한 은하의 목표명을 화면 상단 중앙에 고정 표시(줌/회전과 무관하게 또렷).
+  const [active, setActive] = useState(null)
+  const handleHover = useCallback((goal, entering) => {
+    setActive((prev) => (entering ? goal : prev?.id === goal.id ? null : prev))
+  }, [])
 
   return (
     <AppScreen padTop={22} seed={77} density={100} nav={<BottomNav />} brightness={0.5}>
-      <BackRow label="대시보드" to="/app" right={<Kicker>MY UNIVERSE</Kicker>} />
+      <BackRow right={<Kicker>MY UNIVERSE</Kicker>} />
       <div className={styles.titleRow}>
         <h1 className={styles.title}>내 우주</h1>
         <button className={styles.addBtn} onClick={() => navigate('/mode')}>＋ 새 목표</button>
@@ -47,51 +39,36 @@ export default function UniversePage() {
           action={<Button onClick={() => navigate('/mode')}>✦&ensp;첫 목표 만들기</Button>}
         />
       ) : (
-        <>
-          <div className={styles.cluster} style={{ minHeight: goals.length <= 3 ? 320 : goals.length <= 6 ? 400 : 460 }}>
-            {/* 배경 궤도 타원 */}
-            <div className={styles.orbit} aria-hidden="true" />
-
-            {goals.map((goal, i) => {
-              const [lx, ly] = SCATTER[i % SCATTER.length]
-              const hasConst = !!goal.constellation
-              const canConst = goal.starsEarned >= CONSTELLATION_MIN
-              const gSize = 85 + ((i * 31) % 6)        // 85~90px
-              const gRotate = ((i * 53) % 24) - 8       // -8°~+15°
-              return (
-                <button
-                  key={goal.id}
-                  className={styles.galaxy}
-                  style={{ left: `${lx}%`, top: `${ly}%` }}
-                  onClick={() => navigate(`/app/planet/${goal.id}`)}
-                >
-                  <div className={styles.galaxyVisual}>
-                    <Galaxy size={gSize} style={{ transform: `rotate(${gRotate}deg)` }} />
-                    {(hasConst || canConst) && <Sparkle size={9} className={styles.sparkle} />}
-                  </div>
-                  <div className={styles.galaxyName}>{goal.title}</div>
-                  <div className={styles.galaxyMeta}>
-                    {goal.days ? `D-${goal.days}` : '∞'} · {goal.clarity}%
-                  </div>
-                  {hasConst ? (
-                    <span className={styles.constellationBadge} style={{ color: 'var(--text-hi)' }}>
-                      <ConstellationArt seed={goal.id} count={goal.constellation.star_count} symbol={goal.constellation.symbol} size={44} />
-                    </span>
-                  ) : canConst ? (
-                    <Constellation w={44} h={22} className={styles.constellationBadge} />
-                  ) : null}
-                </button>
-              )
-            })}
+        <div className={styles.body}>
+          <div className={styles.scene}>
+            {/* 상단 중앙 고정 목표명 — hover한 은하 이름 */}
+            <div className={`${styles.activeName} ${active ? styles.activeNameOn : ''}`} aria-hidden="true">
+              {active && (
+                <>
+                  <span className={styles.activeTitle}>{active.title}</span>
+                  <span className={styles.activeMeta}>
+                    {active.days != null ? `D-${active.days}` : '∞'} · {active.clarity}%
+                  </span>
+                </>
+              )}
+            </div>
+            <Suspense fallback={<div className={styles.loading}>우주를 그리는 중…</div>}>
+              <UniverseScene goals={goals} onHover={handleHover} onSelect={(id) => navigate(`/app/planet/${id}`)} />
+            </Suspense>
           </div>
 
-          <div className={styles.blackholeRow}>
-            <button className={styles.blackholeBtn} onClick={() => navigate('/app/blackhole')}>
-              <BlackHole size={26} />
-              <span className={styles.blackholeLabel}>블랙홀 보관함</span>
-            </button>
+          <div className={styles.footer}>
+            {/* <p className={styles.hint} aria-hidden="true">
+              드래그로 회전 · 휠로 확대 · 은하계를 눌러 들어가기
+            </p> */}
+            <div className={styles.blackholeRow}>
+              <button className={styles.blackholeBtn} onClick={() => navigate('/app/blackhole')}>
+                <BlackHole size={26} />
+                <span className={styles.blackholeLabel}>블랙홀 보관함</span>
+              </button>
+            </div>
           </div>
-        </>
+        </div>
       )}
     </AppScreen>
   )

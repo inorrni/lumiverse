@@ -141,7 +141,6 @@ export default function PlanetDetailPage() {
   return (
     <AppScreen padTop={22} seed={51} density={70} nav={<BottomNav />}>
       <BackRow
-        label="내 우주" to="/app"
         right={
           <span className={styles.headIcons} aria-hidden="true">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">

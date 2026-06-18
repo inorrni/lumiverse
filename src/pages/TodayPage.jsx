@@ -49,20 +49,36 @@ export default function TodayPage() {
       return next
     })
 
-  // 오늘(due_date) 배정된 별만 오늘의 투두로 펼친다.
-  const items = goals.flatMap((g) =>
-    g.steps
-      .filter((s) => s.todayStarId)
-      .map((s) => ({ goalId: g.id, goalTitle: g.title, step: s, checked: s.checkedToday }))
-  )
-  const doneCount = items.filter((i) => i.checked).length
-  const total = items.length
+  // 펼침/접힘(목표별 드롭다운) — 기본 접힘, 헤더 클릭 시 펼침
+  const [expanded, setExpanded] = useState(() => new Set())
+  const toggleGroup = (id) =>
+    setExpanded((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+
+  // 오늘(due_date) 배정된 별을 목표(은하)별로 묶는다.
+  const groups = goals
+    .map((g) => ({
+      id: g.id,
+      title: g.title,
+      rows: g.steps.filter((s) => s.todayStarId).map((s) => ({ step: s, checked: s.checkedToday })),
+    }))
+    .filter((grp) => grp.rows.length > 0)
+
+  const total = groups.reduce((n, grp) => n + grp.rows.length, 0)
+  const doneCount = groups.reduce((n, grp) => n + grp.rows.filter((r) => r.checked).length, 0)
   const allDone = total > 0 && doneCount === total
-  const shown = doneOnly ? items.filter((i) => i.checked) : items
+
+  // 완료만 보기 필터 적용 후 표시할 그룹
+  const shownGroups = groups
+    .map((grp) => ({ ...grp, rows: doneOnly ? grp.rows.filter((r) => r.checked) : grp.rows }))
+    .filter((grp) => grp.rows.length > 0)
 
   return (
     <AppScreen padTop={22} seed={61} density={80} nav={<BottomNav />}>
-      <BackRow label="내 우주" to="/app" right={<Kicker>{todayLabel()}</Kicker>} />
+      <BackRow right={<Kicker>{todayLabel()}</Kicker>} />
       <Kicker>TODAY'S STARS</Kicker>
       <h1 className={styles.title}>오늘의 투두</h1>
 
@@ -76,41 +92,66 @@ export default function TodayPage() {
         <>
           <div className={styles.progress}>{doneCount} / {total} 완료</div>
 
-          <Card variant="paper" pad="4px 18px">
-            {shown.map((i, idx) => {
-              const key = `${i.goalId}-${i.step.id}`
-              const hasReview = !!i.step.todayReview
-              const open = openReview.has(key)
-              return (
-                <div
-                  key={key}
-                  className={`${styles.item} ${idx === shown.length - 1 ? styles.itemLast : ''}`}
-                >
-                  <CheckRow
-                    ink
-                    title={i.step.title}
-                    sub={`${i.goalTitle} · 별 ${i.step.stars}개`}
-                    done={i.checked}
-                    onToggle={() => toggleStarToday(i.goalId, i.step.id)}
-                    onReview={() => toggleReview(key)}
-                    reviewFilled={hasReview}
-                    reviewOpen={open}
-                    last
-                  />
-                  {open && (
-                    <ReviewField
-                      autoFocus={!hasReview}
-                      initial={i.step.todayReview}
-                      onSave={(text) => setStarReview(i.goalId, i.step.id, i.step.todayStarId, text)}
-                    />
-                  )}
-                </div>
-              )
-            })}
-            {doneOnly && shown.length === 0 && (
+          {shownGroups.length === 0 ? (
+            <Card variant="paper" pad="4px 18px">
               <div className={styles.emptyDone}>아직 완료한 별이 없어요.</div>
-            )}
-          </Card>
+            </Card>
+          ) : (
+            shownGroups.map((grp) => {
+              const open = expanded.has(grp.id)
+              const gDone = grp.rows.filter((r) => r.checked).length
+              return (
+                <Card key={grp.id} variant="paper" pad={0} className={styles.group}>
+                  <button
+                    type="button"
+                    className={styles.groupHead}
+                    onClick={() => toggleGroup(grp.id)}
+                    aria-expanded={open}
+                  >
+                    <span className={styles.groupTitle}>
+                      <svg className={`${styles.chev} ${open ? styles.chevOpen : ''}`} width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <polyline points="9 6 15 12 9 18" />
+                      </svg>
+                      {grp.title}
+                    </span>
+                    <span className={styles.groupCount}>{gDone} / {grp.rows.length}</span>
+                  </button>
+
+                  {open && (
+                    <div className={styles.groupBody}>
+                      {grp.rows.map(({ step, checked }, idx) => {
+                        const key = `${grp.id}-${step.id}`
+                        const hasReview = !!step.todayReview
+                        const reviewOpen = openReview.has(key)
+                        return (
+                          <div key={key}>
+                            <CheckRow
+                              ink
+                              title={step.title}
+                              meta={`${step.done}/${step.stars}`}
+                              done={checked}
+                              onToggle={() => toggleStarToday(grp.id, step.id)}
+                              onReview={() => toggleReview(key)}
+                              reviewFilled={hasReview}
+                              reviewOpen={reviewOpen}
+                              last={idx === grp.rows.length - 1}
+                            />
+                            {reviewOpen && (
+                              <ReviewField
+                                autoFocus={!hasReview}
+                                initial={step.todayReview}
+                                onSave={(text) => setStarReview(grp.id, step.id, step.todayStarId, text)}
+                              />
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </Card>
+              )
+            })
+          )}
 
           {/* 완료 연출 — 오늘 별을 모두 채우면 */}
           {allDone && (

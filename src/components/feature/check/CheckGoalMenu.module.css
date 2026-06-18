@@ -1,0 +1,111 @@
+.root {
+  position: relative;
+  flex: none;
+}
+
+/* 햄버거 버튼 */
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.trigger:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-hi);
+}
+
+/* 드롭다운 패널 */
+.menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: var(--z-overlay);
+  min-width: 220px;
+  max-width: 280px;
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-2);
+  background: var(--surface);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+/* 깃트리 — 세로선 + 점 */
+.tree {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+/* 첫 점 ~ 마지막 점 중심을 잇는 세로선 — 오른쪽 레일 (점 중심 = padding-right 8 + 반지름 4.5) */
+.tree::before {
+  content: '';
+  position: absolute;
+  right: calc(var(--space-2) + 4.5px);
+  top: 18px;
+  bottom: 18px;
+  width: 1px;
+  background: var(--line);
+}
+
+.node { margin: 0; }
+
+.item {
+  display: flex;
+  flex-direction: row-reverse; /* 라벨 왼쪽 · 점(레일) 오른쪽 */
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 7px var(--space-2);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.item:hover {
+  background: var(--line-soft);
+  color: var(--text-hi);
+}
+
+/* 선 위에 얹히는 점 (배경색으로 선을 가려 노드처럼) */
+.dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-low);
+  background: var(--surface);
+  position: relative;
+  z-index: 1;
+}
+.itemOn .dot {
+  border-color: var(--text-hi);
+  background: var(--text-hi);
+}
+
+.label {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-sm);
+  line-height: var(--line-snug);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.itemOn .label {
+  color: var(--text-hi);
+  font-weight: var(--font-semibold);
+}
