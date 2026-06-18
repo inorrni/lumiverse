@@ -25,7 +25,13 @@ export default function ConstellationArt({ seed, count = 14, symbol, size = 120,
     [nodes, off],
   )
 
-  const path = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ')
+  // 무게중심 기준 각도순으로 정렬해 하나의 닫힌 윤곽으로 잇는다(별-선-별, 교차 없음).
+  const path = useMemo(() => {
+    const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length
+    const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length
+    const ordered = [...pts].sort((a, b) => Math.atan2(a.y - cy, a.x - cx) - Math.atan2(b.y - cy, b.x - cx))
+    return ordered.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ') + ' Z'
+  }, [pts])
 
   return (
     <svg
