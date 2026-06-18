@@ -9,6 +9,7 @@ import Card from '../components/ui/Card'
 import { EmptyView } from '../components/ui/DataView'
 import { Sparkle } from '../components/ui/icons'
 import { Planet } from '../components/ui/Celestial'
+import CheckGoalMenu from '../components/feature/check/CheckGoalMenu'
 import { useGoals } from '../store/GoalStore'
 import { useAuth } from '../store/AuthStore'
 import { computeMidCheck } from '../lib/midcheck'
@@ -90,8 +91,11 @@ export default function UniverseCheckPage() {
 
   return (
     <AppScreen padTop={22} seed={71} density={80} nav={<BottomNav />}>
-      <BackRow label="내 우주" to="/app" right={<Kicker>SELF-CHECK</Kicker>} />
-      <h1 className={styles.title}>내 우주 점검</h1>
+      <BackRow right={<Kicker>SELF-CHECK</Kicker>} />
+      <div className={styles.titleRow}>
+        <h1 className={styles.title}>내 우주 점검</h1>
+        <CheckGoalMenu goals={goals} value="" />
+      </div>
       <p className={styles.sub}>목표 {agg.totals.goals}개 · 별 {agg.totals.done_stars}/{agg.totals.total_stars} · 평균 진행률 {agg.avgClarity}%</p>
 
       {loading ? (

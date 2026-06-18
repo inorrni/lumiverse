@@ -10,6 +10,7 @@ import ClarityBar from '../components/ui/ClarityBar'
 import { EmptyView } from '../components/ui/DataView'
 import { Sparkle } from '../components/ui/icons'
 import { Planet } from '../components/ui/Celestial'
+import CheckGoalMenu from '../components/feature/check/CheckGoalMenu'
 import { useGoals } from '../store/GoalStore'
 import { computeMidCheck, STATE_META, VERDICT_META } from '../lib/midcheck'
 import { fetchMidCheck } from '../lib/api'
@@ -199,9 +200,12 @@ export default function MidCheckPage() {
 
   return (
     <AppScreen padTop={22} seed={71} density={70} nav={<BottomNav />}>
-      <BackRow label="내 우주" to="/app" right={<Kicker>{goal.title}</Kicker>} />
+      <BackRow right={<Kicker>{goal.title}</Kicker>} />
       <Kicker>MID-CHECK</Kicker>
-      <h1 className={styles.title}>중간점검 결과</h1>
+      <div className={styles.titleRow}>
+        <h1 className={styles.title}>중간점검 결과</h1>
+        <CheckGoalMenu goals={goals} value={goal.id} />
+      </div>
 
       {/* 상태 레이블 + 전체 진행률 */}
       <div className={styles.stateRow}>
@@ -253,17 +257,18 @@ export default function MidCheckPage() {
 
       <div className={styles.spacer} />
 
-      {/* 액션 — verdict/state 별 */}
-      {!loading && isAtRisk ? (
-        <div className={styles.actions}>
-          <Button fullWidth onClick={() => setMode('supplement')}>보완하기</Button>
-          <Button variant="ghost" fullWidth onClick={startFinish}>마무리하기</Button>
-        </div>
-      ) : !loading && isSupplement ? (
-        <Button fullWidth onClick={() => setMode('supplement')}>목표 보완하기&ensp;▸</Button>
-      ) : (
-        <Button fullWidth onClick={() => navigate('/app')}>목표 진행하기&ensp;▸</Button>
-      )}
+      {/* 액션 — verdict/state 별 (로딩 중엔 숨김) */}
+      {!loading &&
+        (isAtRisk ? (
+          <div className={styles.actions}>
+            <Button fullWidth onClick={() => setMode('supplement')}>보완하기</Button>
+            <Button variant="ghost" fullWidth onClick={startFinish}>마무리하기</Button>
+          </div>
+        ) : isSupplement ? (
+          <Button fullWidth onClick={() => setMode('supplement')}>목표 보완하기&ensp;▸</Button>
+        ) : (
+          <Button fullWidth onClick={() => navigate('/app')}>목표 진행하기&ensp;▸</Button>
+        ))}
     </AppScreen>
   )
 }
