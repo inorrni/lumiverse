@@ -24,7 +24,10 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      # npm ci 대신 npm install — lock의 esbuild optional 플랫폼 패키지(@esbuild/*)가
+      # 작성 npm 버전에 따라 extraneous 로 기록돼 CI npm ci 가 EBADPLATFORM 으로 실패.
+      # npm install 은 현재 플랫폼에 맞는 optional 만 설치하고 나머지는 건너뛴다.
+      - run: npm install --no-audit --no-fund
       # Vite 빌드 시 VITE_* 는 번들에 박힌다 → repo Secrets 를 빌드 env 로 주입해야
       # 배포본이 Supabase 에 연결된다. (Secrets 등록만으론 빌드에 안 들어감)
       - run: npm run build
