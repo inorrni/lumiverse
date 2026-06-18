@@ -21,7 +21,13 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  padding: var(--pad-top, var(--space-5)) var(--space-5) var(--space-5);
+  /* 좌우는 세이프에어리어(폴드폰·노치 등 측면 컷아웃/둥근 모서리)를
+     존중해 콘텐츠가 가장자리 아래로 잘리지 않게 한다. 인셋이 없는
+     일반 폰에선 max()로 기존 --space-5 패딩을 그대로 유지. */
+  padding: var(--pad-top, var(--space-5))
+           max(var(--space-5), env(safe-area-inset-right))
+           var(--space-5)
+           max(var(--space-5), env(safe-area-inset-left));
 }
 
 /* 자식 요소가 flex-shrink로 압축되어 잘리지 않도록 */
