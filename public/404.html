@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>Lumiverse</title>
+    <script type="text/javascript">
+      // SPA 딥링크 폴백 (github.com/rafgraph/spa-github-pages, MIT)
+      // GitHub Pages는 미존재 경로(예: /lumiverse/app)에 이 404.html을 status 404로 내려준다.
+      // 경로를 쿼리스트링으로 인코딩해 index.html(200 OK)로 리다이렉트 → index.html의
+      // 복원 스크립트가 원래 경로로 history를 되돌린다. 덕분에 새로고침·북마크·Lighthouse가
+      // 모두 200으로 동작한다.
+      // pathSegmentsToKeep=1 : 프로젝트 페이지 base '/lumiverse/' 를 유지(루트 페이지면 0).
+      var pathSegmentsToKeep = 1
+      var l = window.location
+      l.replace(
+        l.protocol +
+          '//' +
+          l.hostname +
+          (l.port ? ':' + l.port : '') +
+          l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') +
+          '/?/' +
+          l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+          (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+          l.hash,
+      )
+    </script>
+  </head>
+  <body></body>
+</html>
