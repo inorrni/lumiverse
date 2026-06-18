@@ -55,7 +55,7 @@ export default function SettingsPage() {
 
   return (
     <AppScreen padTop={22} seed={91} density={45} nav={<BottomNav />}>
-      <BackRow label="내 우주" to="/app" />
+      <BackRow />
       <h1 className={styles.title}>설정</h1>
 
       {user && <p className={styles.account}>{user.email}</p>}

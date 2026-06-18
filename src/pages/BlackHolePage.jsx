@@ -52,7 +52,7 @@ export default function BlackHolePage() {
 
   return (
     <AppScreen padTop={22} seed={81} density={60} nav={<BottomNav />}>
-      <BackRow label="내 우주" to="/app/universe" />
+      <BackRow />
 
       <div className={styles.head}>
         <BlackHole size={84} />
