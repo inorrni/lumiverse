@@ -2,10 +2,10 @@
 // 장식이므로 기본 alt="". 경로는 asset() 로 배포 base 에 맞춘다.
 import { asset } from '../../lib/asset'
 import { useTheme } from '../../hooks/useTheme'
+import ClarityFilter from './ClarityFilter'
 
-export function Planet({ size = 64, alt = '', style }) {
-  return <img src={asset('assets/celestial/planet.png')} alt={alt} width={size} height={size}
-    style={{ flex: 'none', objectFit: 'contain', ...style }} />
+export function Planet({ size = 64, alt = '', style, clarity }) {
+  return <ClarityFilter src={asset('assets/celestial/planet.png')} size={size} alt={alt} style={style} clarity={clarity} />
 }
 
 export function BlackHole({ size = 56, alt = '', style }) {

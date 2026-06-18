@@ -153,7 +153,7 @@ export default function PlanetDetailPage() {
       />
 
       <div className={styles.hero}>
-        {step && <Planet size={130} />}
+        {step && <Planet size={130} clarity={step.clarity} />}
         <div className={styles.name}>{step ? step.title : goal.title}</div>
         <div className={styles.meta}>
           {step
