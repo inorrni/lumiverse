@@ -11,6 +11,8 @@ import { corsHeaders } from '../_shared/cors.ts'
 import { chatJSON } from '../_shared/llm.ts'
 
 const RATE_LIMIT_PER_HOUR = 30
+// 프롬프트 변경 시 올린다 — input_hash에 포함돼 옛 캐시를 자동 무효화한다.
+const PROMPT_VERSION = 'v2'
 
 type Verdict = 'encourage' | 'go' | 'supplement' | 'finish'
 type State = 'early' | 'steady' | 'plateau' | 'at_risk'
@@ -53,8 +55,8 @@ async function sha256Hex(text: string): Promise<string> {
 const STATE_GUIDE: Record<State, string> = {
   early: '초반 진입(기록 3일 미만) — 아직 판단하기 이르다. 시작을 인정하고 가볍게 격려한다.',
   steady: '꾸준함 유지(완료율 높고 연속 유지) — 잘 가고 있으니 다음 단계로 강도를 조금 올려도 좋다는 톤.',
-  plateau: '정체기(흐름이 느슨함) — 부담을 낮춰, 버거운 부분은 정리하고 지금 맞는 방향으로 보완하자는 톤.',
-  at_risk: '이탈 위험(연속 실패 또는 완료율 낮음) — 질책 금지. 보완하거나 잠시 마무리해도 괜찮다는 톤.',
+  plateau: '정체기(흐름이 느슨함) — 다그치지 말고, 이 목표에 지금 맞는 방식으로 다시 잡도록 돕는 톤. 목표 성격과 안 맞는 일반적 조언은 피한다.',
+  at_risk: '이탈 위험(연속 실패 또는 완료율 낮음) — 질책 금지. 이 목표에 맞게 보완하거나 잠시 마무리해도 괜찮다는 톤.',
 }
 
 const needsRecommendation = (state: State) => state === 'plateau' || state === 'at_risk'
@@ -75,9 +77,14 @@ Return ONLY JSON of this exact shape:
 
 - reason: ONE honest Korean sentence on why this state/verdict fits (natural language, no number dump).
 - message: 1-2 Korean sentences in 항해사's voice. Calm and warm — NO excessive cheer, NO emoji.
-- Use the samples (the user's todo titles + their one-line reviews) to be personal and specific when meaningful. Never invent facts not present.
+- GROUND the message in THIS specific goal ("${input.goal_name}"): first infer what the goal is really about from its name + planets, then tailor the coaching frame to that nature. Advice that fits one goal can be wrong for another (성취·달성형, 습관·지속형, 양보다 질이 중요한 형 등 성격이 다르면 조언도 달라진다) — never apply a one-size-fits-all template.
+- Tie the wording to the user's REAL context — the planets (sub-goals) and samples (todo titles + one-line reviews). Reference at least one concrete detail when samples are non-empty. Never invent facts not present.
+- Avoid generic self-help boilerplate (예: "작은 단위로 접근", "숨을 고르며", "한 걸음씩" 등 어떤 목표에도 붙는 상투어). Speak concretely about THIS goal.
 - Consider overall_progress_percent (how much of the whole goal is done).
 - All text MUST be in Korean.${recBlock}
+
+GOAL NATURE FIRST:
+상태 가이드(STATE)는 방향일 뿐이다. 먼저 이 목표의 성격을 파악하고, 그 성격에 맞게 STATE 톤을 적용한다. 상태 가이드 표현이 목표 성격과 충돌하면 목표 쪽을 우선한다(특정 목표 유형에 맞춘 규칙이 아니라, 모든 목표에 동일하게 적용되는 원칙).
 
 CURRENT STATE:
 ${STATE_GUIDE[input.state] ?? STATE_GUIDE.plateau}`
@@ -171,7 +178,7 @@ Deno.serve(async (req) => {
     .map((x) => `${x.title}»${x.review}»${x.done ? 1 : 0}`)
     .join('§')
   const inputHash = await sha256Hex(
-    `${input.goal_name.trim()}|${input.intensity ?? 'normal'}|${state}|${verdict}|${s.completionPct ?? ''}|${s.overallPct ?? ''}|${s.daysTracked ?? ''}|${s.streak ?? ''}|${s.failStreak ?? ''}|${(input.existing_planets ?? []).join('¶')}|${sampleKey}`,
+    `${PROMPT_VERSION}|${input.goal_name.trim()}|${input.intensity ?? 'normal'}|${state}|${verdict}|${s.completionPct ?? ''}|${s.overallPct ?? ''}|${s.daysTracked ?? ''}|${s.streak ?? ''}|${s.failStreak ?? ''}|${(input.existing_planets ?? []).join('¶')}|${sampleKey}`,
   )
 
   // 1) 캐시 조회
