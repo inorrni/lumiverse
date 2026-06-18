@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Lumiverse">
+  <rect width="32" height="32" rx="7" fill="#0b0a09"/>
+  <g transform="translate(5 5) scale(0.92)" fill="#f0ece3">
+    <path d="M12 1.5L14.2 9.8 22.5 12 14.2 14.2 12 22.5 9.8 14.2 1.5 12 9.8 9.8z"/>
+  </g>
+  <g transform="translate(18.5 1.6) scale(0.34)" fill="#e6ddca">
+    <path d="M12 1.5L14.2 9.8 22.5 12 14.2 14.2 12 22.5 9.8 14.2 1.5 12 9.8 9.8z"/>
+  </g>
+</svg>
