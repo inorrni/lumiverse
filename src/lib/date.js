@@ -16,11 +16,17 @@ export function todayLabel() {
   return `${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${WD[d.getDay()]}`
 }
 
-// 디데이까지 남은 일수(별 개수). 미선택/과거면 null.
+// 디데이까지 남은 일수(D-N 카운트다운용). 당일=0(D-DAY), 미선택/과거면 null.
 export function daysUntil(dday) {
   if (!dday) return null
-  const diff = Math.ceil((new Date(dday).getTime() - new Date(todayISO()).getTime()) / DAY)
-  return diff > 0 ? diff : null
+  const diff = Math.round((new Date(dday).getTime() - new Date(todayISO()).getTime()) / DAY)
+  return diff >= 0 ? diff : null
+}
+
+// 별 개수 — '오늘부터 디데이까지'(양끝 포함). 당일 목표=별 1개, 미선택/과거면 null.
+export function starCount(dday) {
+  const d = daysUntil(dday)
+  return d == null ? null : d + 1
 }
 
 // 'YYYY-MM-DD' 에 n일을 더한 로컬 날짜 문자열.

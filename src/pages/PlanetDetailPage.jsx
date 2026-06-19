@@ -158,7 +158,7 @@ export default function PlanetDetailPage() {
         <div className={styles.meta}>
           {step
             ? goal.title
-            : `${goal.days ? `D-${goal.days}` : '디데이 자유'} · ${goal.mode === 'sparta' ? '스파르타모드' : '살살모드'}`}
+            : `${goal.days == null ? '디데이 자유' : goal.days === 0 ? 'D-DAY' : `D-${goal.days}`} · ${goal.mode === 'sparta' ? '스파르타모드' : '살살모드'}`}
         </div>
       </div>
 
