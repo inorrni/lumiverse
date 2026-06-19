@@ -13,29 +13,35 @@ import styles from './AuthPage.module.css'
 // 2 · 로그인/가입 (Must) — Supabase Auth. 신규 → 모드 선택 / 기존(우주 보유) → 대시보드.
 export default function AuthPage() {
   const navigate = useNavigate()
-  const { login, loginWithKakao, user, ready } = useAuth()
+  const { login, loginWithKakao, user, ready, nickname, profileReady } = useAuth()
   const { goals } = useGoals()
   const [params, setParams] = useSearchParams()
   const [email, setEmail] = useState('')
   const [pw, setPw] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [submitted, setSubmitted] = useState(false) // 이메일 로그인/가입 시도함
 
-  const afterAuth = () => navigate(goals.length > 0 ? '/app' : '/mode')
-
-  // 카카오 OAuth 복귀(?postLogin=1) — 세션이 붙으면 로그인 화면을 떠나 다음 화면으로.
+  // 인증 성공 후 목적지 결정 — 이메일·카카오(?postLogin=1) 공통.
+  // 닉네임 조회(profileReady)가 끝난 뒤 한 번만 이동한다. 조회 전 섣불리 이동하면
+  // 신규 가입자(nickname=null)가 /welcome 을 건너뛰고 온보딩으로 빠지므로 반드시 대기.
+  const fromOAuth = params.has('postLogin')
   useEffect(() => {
-    if (!params.has('postLogin')) return
+    if (!submitted && !fromOAuth) return
     if (!ready) return // 세션 복원 대기
-    if (user) {
-      afterAuth()
-    } else {
-      // 세션이 끝내 안 붙음(취소·미동의 등) — 플래그 정리하고 로그인 폼 노출.
-      params.delete('postLogin')
-      setParams(params, { replace: true })
+    if (!user) {
+      // 세션이 끝내 안 붙음(취소·미동의 등) — 카카오 복귀 플래그만 정리하고 폼 노출.
+      if (fromOAuth) {
+        params.delete('postLogin')
+        setParams(params, { replace: true })
+      }
+      return
     }
+    if (!profileReady) return // 닉네임 조회 대기
+    if (!nickname) navigate('/welcome', { replace: true }) // 신규 → 닉네임 설정
+    else navigate(goals.length > 0 ? '/app' : '/mode', { replace: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params, ready, user])
+  }, [submitted, fromOAuth, ready, user, profileReady, nickname])
 
   // OAuth 복귀 처리 중에는 폼 대신 로딩만 — 랜딩 깜빡임 없이 로그인 화면에서 매끄럽게 이어진다.
   const resolvingOAuth = params.has('postLogin') && (!ready || user)
@@ -66,12 +72,13 @@ export default function AuthPage() {
     }
     setBusy(true)
     const { error: authErr } = await login(v, pw)
-    setBusy(false)
     if (authErr) {
+      setBusy(false)
       setError('로그인에 실패했어요. 다시 시도해 주세요.')
       return
     }
-    afterAuth()
+    // 목적지는 위 effect 가 닉네임 조회 후 결정 — 그때까지 버튼은 로딩 유지.
+    setSubmitted(true)
   }
 
   // 카카오는 OAuth 리다이렉트 — 복귀 후 onAuthStateChange 가 세션을 채운다.
