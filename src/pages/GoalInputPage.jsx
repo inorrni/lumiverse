@@ -6,7 +6,7 @@ import Kicker from '../components/ui/Kicker'
 import TextInput from '../components/ui/TextInput'
 import Button from '../components/ui/Button'
 import { StarIcon } from '../components/ui/icons'
-import { todayISO, daysUntil } from '../lib/date'
+import { todayISO, starCount } from '../lib/date'
 import styles from './GoalInputPage.module.css'
 
 const MAX = 30
@@ -23,7 +23,7 @@ export default function GoalInputPage() {
   const [error, setError] = useState('')        // 목표 에러
   const [ddayError, setDdayError] = useState('') // 디데이 에러
 
-  const days = useMemo(() => daysUntil(dday), [dday])
+  const days = useMemo(() => starCount(dday), [dday])
 
   const submit = (e) => {
     e.preventDefault()
@@ -38,7 +38,7 @@ export default function GoalInputPage() {
       return
     }
     if (days === null) {
-      setDdayError('디데이는 오늘 이후 날짜로 골라 주세요.')
+      setDdayError('지난 날짜는 고를 수 없어요. 오늘부터 골라 주세요.')
       return
     }
     navigate('/plan', { state: { goal: text, dday, days, mode, inputMethod } })
@@ -87,7 +87,7 @@ export default function GoalInputPage() {
 
         <p className={styles.note}>
           <span aria-hidden="true">ⓘ</span>
-          별 14개 이상부터 별자리를 만들 수 있어요. 별 개수 = 디데이까지 남은 일수.
+          별 14개 이상부터 별자리를 만들 수 있어요. 별 개수 = 오늘부터 디데이까지(당일 포함).
         </p>
 
         <div className={styles.spacer} />

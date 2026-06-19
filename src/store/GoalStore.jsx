@@ -99,10 +99,8 @@ export function GoalProvider({ children }) {
     async ({ goal, planets = [], dday = null, mode = 'gentle', inputMode = 'self' }) => {
       const start = todayISO()
       const end = dday || addDaysISO(start, DEFAULT_DAYS)
-      // 별 개수 = '디데이까지 남은 일수'(daysUntil = 미리보기 "N일의 별")에 맞춘다.
-      // enumerateDatesISO 가 양끝 포함이라 [오늘..디데이]면 디데이 당일만큼 하루 더
-      // 생기던 off-by-one → 디데이 전날까지만 생성(오늘 별 유지, dday_end 는 실제 디데이 보존).
-      const starsEnd = addDaysISO(end, -1)
+      // 별 개수 = '오늘부터 디데이까지'(양끝 포함, starCount = 미리보기 "N일의 별")에 맞춘다.
+      // enumerateDatesISO 가 양끝 포함이라 [오늘..디데이] 그대로 → 디데이 당일도 별 1개.
       const payload = {
         name: goal,
         dday_start: start,
@@ -113,7 +111,7 @@ export function GoalProvider({ children }) {
           name: p.title,
           symbol: p.symbol || null,
           order_idx: i,
-          stars: instantiateStars(p.todo_pattern, start, starsEnd, p.title),
+          stars: instantiateStars(p.todo_pattern, start, end, p.title),
         })),
       }
       const { data, error } = await supabase.rpc('lumiverse_create_galaxy_with_planets', { payload })
@@ -328,7 +326,7 @@ export function GoalProvider({ children }) {
       if (!g) return
       const start = todayISO()
       const end = g.dday_end || start
-      const starsEnd = addDaysISO(end, -1) // 디데이 당일 제외 — 생성과 동일한 별 개수 규칙
+      // 오늘~디데이(양끝 포함) — 생성과 동일한 별 개수 규칙(디데이 당일 포함)
       const orderIdx = Math.max(-1, ...(g.planets || []).map((p) => p.order_idx ?? 0)) + 1
       const { data: planet, error: pErr } = await supabase
         .from('lumiverse_planets')
@@ -336,7 +334,7 @@ export function GoalProvider({ children }) {
         .select()
         .single()
       if (pErr) return
-      const stars = instantiateStars(todo_pattern, start, starsEnd, name).map((s) => ({
+      const stars = instantiateStars(todo_pattern, start, end, name).map((s) => ({
         planet_id: planet.id,
         galaxy_id: galaxyId,
         due_date: s.due_date,

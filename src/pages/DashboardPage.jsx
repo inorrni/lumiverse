@@ -213,7 +213,7 @@ export default function DashboardPage() {
         <Card variant="paper" className={styles.today}>
           <div className={styles.todayHead}>
             <Kicker tone="ink">Today</Kicker>
-            <span className={styles.todayDate}>{todayDone}/{todayTotal} · {activeGoal.days ? `D-${activeGoal.days}` : '∞'}</span>
+            <span className={styles.todayDate}>{todayDone}/{todayTotal} · {activeGoal.days == null ? '∞' : activeGoal.days === 0 ? 'D-DAY' : `D-${activeGoal.days}`}</span>
           </div>
           {activeGoal.steps.slice(0, 3).map((s, i, arr) => (
             <TodayRow

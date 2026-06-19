@@ -47,7 +47,7 @@ export default function UniversePage() {
                 <>
                   <span className={styles.activeTitle}>{active.title}</span>
                   <span className={styles.activeMeta}>
-                    {active.days != null ? `D-${active.days}` : '∞'} · {active.clarity}%
+                    {active.days == null ? '∞' : active.days === 0 ? 'D-DAY' : `D-${active.days}`} · {active.clarity}%
                   </span>
                 </>
               )}
