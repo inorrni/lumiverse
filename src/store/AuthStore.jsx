@@ -62,6 +62,13 @@ export function AuthProvider({ children }) {
         setNickname(n || null)
         setProfileReady(true)
       })
+      // 조회 실패해도 멈추지 않게 — profileReady 가 영영 false 로 굳으면
+      // 가입 후 닉네임 화면으로 못 넘어간다. 미설정으로 보고 진행시킨다.
+      .catch(() => {
+        if (!active) return
+        setNickname(null)
+        setProfileReady(true)
+      })
     return () => { active = false }
   }, [userId])
 
