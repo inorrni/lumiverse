@@ -253,6 +253,13 @@
   color: var(--paper-mid);
 }
 
+.todayEmpty {
+  padding: var(--space-4) 0;
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--paper-mid);
+}
+
 .todayMore {
   width: 100%;
   text-align: center;

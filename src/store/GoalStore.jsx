@@ -295,6 +295,28 @@ export function GoalProvider({ children }) {
       }))
   }, [userId])
 
+  // 블랙홀 보관함 — 포기(마무리)한 목표(은하) 목록. 행성과 별개로 은하 status 로 조회.
+  const loadBlackholeGalaxies = useCallback(async () => {
+    if (!userId) return []
+    const { data, error } = await supabase
+      .from('lumiverse_galaxies')
+      .select('id, name, created_at, dday_end')
+      .eq('status', 'blackhole')
+      .order('created_at', { ascending: false })
+    if (error) throw error
+    return data || []
+  }, [userId])
+
+  // 은하 복원 — status='active' 로 되돌려 우주로 복귀. 소속 행성은 active 그대로라 함께 재등장.
+  const restoreGalaxy = useCallback(
+    async (galaxyId) => {
+      const { error } = await supabase.from('lumiverse_galaxies').update({ status: 'active' }).eq('id', galaxyId)
+      if (error) throw error
+      await reload()
+    },
+    [reload],
+  )
+
   // 행성 복원 — status='active' 로 되돌려 원 소속 목표로 귀속.
   const restorePlanets = useCallback(
     async (planetIds) => {
@@ -376,8 +398,8 @@ export function GoalProvider({ children }) {
   }, [userId, reload])
 
   const value = useMemo(
-    () => ({ goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, historyOf, saveMidCheck, blackholePlanet, addPlanet, loadBlackholePlanets, restorePlanets, createConstellation, setGoalMode, removeGoal, clearGoals }),
-    [goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, historyOf, saveMidCheck, blackholePlanet, addPlanet, loadBlackholePlanets, restorePlanets, createConstellation, setGoalMode, removeGoal, clearGoals],
+    () => ({ goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, historyOf, saveMidCheck, blackholePlanet, addPlanet, loadBlackholePlanets, restorePlanets, loadBlackholeGalaxies, restoreGalaxy, createConstellation, setGoalMode, removeGoal, clearGoals }),
+    [goals, loading, reload, addGoal, toggleStarToday, addStar, setStarReview, historyOf, saveMidCheck, blackholePlanet, addPlanet, loadBlackholePlanets, restorePlanets, loadBlackholeGalaxies, restoreGalaxy, createConstellation, setGoalMode, removeGoal, clearGoals],
   )
 
   return <GoalContext.Provider value={value}>{children}</GoalContext.Provider>
