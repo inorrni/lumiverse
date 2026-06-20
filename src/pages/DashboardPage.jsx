@@ -228,7 +228,7 @@ export default function DashboardPage() {
               />
             ))
           )}
-          <button className={styles.todayMore} onClick={() => navigate('/app/today')}>모두 보기 →</button>
+          <button className={styles.todayMore} onClick={() => navigate('/app/today', { state: { goalId: activeGoal.id } })}>모두 보기 →</button>
         </Card>
       )}
 
