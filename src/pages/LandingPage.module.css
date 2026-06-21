@@ -20,6 +20,22 @@
   user-select: none;
 }
 
+/* 갱지 이미지 — 좌측 행성이 잘리지 않도록 왼쪽 기준 정렬 */
+.bgPaper {
+  position: absolute;
+  top: -20%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 120%;
+  object-fit: cover;
+  object-position: 40% center;
+  transform: scale(1.05);
+  transform-origin: center center;
+  pointer-events: none;
+  user-select: none;
+}
+
 .brand {
   position: relative;
   z-index: 1;
@@ -109,7 +125,7 @@
   box-shadow: 0 0 0 1px rgba(236, 231, 220, 0.18);
 }
 
-/* 텍스트 영역 아래 어두운 그라디언트 — 배경 이미지 위 가독성 확보 */
+/* 텍스트 영역 아래 어두운 그라디언트 — 다크 배경 이미지 위 가독성 확보 */
 .textFade {
   position: absolute;
   bottom: 0;
@@ -117,6 +133,18 @@
   right: 0;
   height: 55%;
   background: linear-gradient(to top, rgba(6,5,4,0.82) 0%, rgba(6,5,4,0.3) 55%, transparent 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 갱지 이미지 위 텍스트 가독성 — 밝은 베이지 배경이라 옅은 페이드 */
+.textFadePaper {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to top, rgba(230,221,202,0.85) 0%, rgba(230,221,202,0.4) 55%, transparent 100%);
   z-index: 0;
   pointer-events: none;
 }

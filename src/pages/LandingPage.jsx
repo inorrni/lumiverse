@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import AppScreen from '../components/layout/AppScreen'
 import Wordmark from '../components/ui/Wordmark'
 import Button from '../components/ui/Button'
-import { Planet, Constellation } from '../components/ui/Celestial'
+
 import { useGoals } from '../store/GoalStore'
 import { useAuth } from '../store/AuthStore'
 import { useTheme } from '../hooks/useTheme'
@@ -22,36 +22,20 @@ export default function LandingPage() {
 
   return (
     <AppScreen padTop={26} seed={isPaper ? 3 : 0} density={isPaper ? 110 : 0}>
-      {!isPaper && (
-        <div className={styles.bgWrap}>
-          <img
-            src={asset('assets/bg/onboarding_bg.png')}
-            alt=""
-            className={styles.bg}
-          />
-          <div className={styles.textFade} />
-        </div>
-      )}
+      <div className={styles.bgWrap}>
+        <img
+          src={asset(isPaper ? 'assets/bg/onboarding_bg_paper.png' : 'assets/bg/onboarding_bg.png')}
+          alt=""
+          className={isPaper ? styles.bgPaper : styles.bg}
+        />
+        <div className={isPaper ? styles.textFadePaper : styles.textFade} />
+      </div>
 
       <header className={styles.brand}>
         <Wordmark size={20} sparkle />
       </header>
 
       <div className={styles.hero}>
-        {isPaper && (
-          <div className={styles.stage}>
-            <Planet size={104} className={styles.planetMain} />
-            <Planet size={30} className={styles.planetSmall} />
-            <Constellation dim className={styles.constellation} />
-            {/* 지평선 위 작은 실루엣 */}
-            <div className={styles.horizon}>
-              <span className={styles.arc} />
-              <span className={styles.silBody} />
-              <span className={styles.silDot} />
-            </div>
-          </div>
-        )}
-
         <h1 className={styles.title}>
           작은 행동들의 여정을 따라<br />점점 더 또렷해지는 우주
         </h1>
