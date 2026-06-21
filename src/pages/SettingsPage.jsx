@@ -1,10 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AppScreen from '../components/layout/AppScreen'
 import BottomNav from '../components/layout/BottomNav'
 import BackRow from '../components/ui/BackRow'
 import Kicker from '../components/ui/Kicker'
 import Button from '../components/ui/Button'
+import TextInput from '../components/ui/TextInput'
 import Toggle from '../components/ui/Toggle'
 import { StarIcon } from '../components/ui/icons'
 import { useAuth } from '../store/AuthStore'
@@ -37,8 +38,23 @@ function ThemeSwatch({ label, paper = false, on = false, onSelect }) {
 // 11 · 설정 (Could) — 알림 토글·데이터 초기화·로그아웃. MVP 최소 골격.
 export default function SettingsPage() {
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const { user, logout, nickname, updateNickname } = useAuth()
   const { clearGoals } = useGoals()
+
+  // 닉네임 인라인 수정
+  const [editNick, setEditNick] = useState(false)
+  const [draft, setDraft] = useState('')
+  const [nickBusy, setNickBusy] = useState(false)
+  const [nickErr, setNickErr] = useState('')
+  const startEditNick = () => { setDraft(nickname || ''); setNickErr(''); setEditNick(true) }
+  const saveNick = async () => {
+    if (!draft.trim()) { setNickErr('닉네임을 입력해 주세요.'); return }
+    setNickBusy(true)
+    const { error } = await updateNickname(draft)
+    setNickBusy(false)
+    if (error) { setNickErr('저장하지 못했어요. 다시 시도해 주세요.'); return }
+    setEditNick(false)
+  }
   const [prefs, setPrefs] = useLocalStorage('lumiverse.settings', {
     todo: true, planet: true, constellation: false,
   })
@@ -59,6 +75,31 @@ export default function SettingsPage() {
       <h1 className={styles.title}>설정</h1>
 
       {user && <p className={styles.account}>{user.email}</p>}
+
+      <Kicker>프로필</Kicker>
+      <div className={styles.group}>
+        {editNick ? (
+          <div className={styles.nickEdit}>
+            <TextInput
+              label="닉네임"
+              value={draft}
+              onChange={(e) => { setDraft(e.target.value); if (nickErr) setNickErr('') }}
+              error={nickErr}
+              maxLength={20}
+              autoFocus
+            />
+            <div className={styles.nickBtns}>
+              <Button variant="ghost" onClick={() => setEditNick(false)} disabled={nickBusy}>취소</Button>
+              <Button onClick={saveNick} disabled={nickBusy}>{nickBusy ? '저장 중…' : '저장'}</Button>
+            </div>
+          </div>
+        ) : (
+          <button className={styles.linkRow} onClick={startEditNick}>
+            <span className={styles.rowLabel}>닉네임</span>
+            <span className={styles.nickVal}>{nickname || '미설정'}<span className={styles.chevron}>›</span></span>
+          </button>
+        )}
+      </div>
 
       <Kicker>알림 설정</Kicker>
       <div className={styles.group}>

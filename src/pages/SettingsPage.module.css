@@ -34,7 +34,24 @@
   color: var(--text-secondary);
 }
 
-.chevron { color: var(--text-low); }
+.chevron { color: var(--text-low); margin-left: var(--space-2); }
+
+/* 닉네임 — 표시값(우측) + 인라인 수정 */
+.nickVal {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+.nickEdit {
+  padding: var(--space-3) 0;
+}
+.nickBtns {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
 
 .version {
   font-family: var(--font-mono);

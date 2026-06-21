@@ -36,6 +36,37 @@
   min-height: 0;
 }
 
+/* 상태 필터 칩 바 — 가로 스크롤 */
+.filterBar {
+  flex: none;
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-2);
+  scrollbar-width: none;
+}
+.filterBar::-webkit-scrollbar { display: none; }
+
+.chip {
+  flex: none;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.chip:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+.chipOn {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+  background: var(--line-soft);
+}
+
 /* 3D 우주 무대 — Three.js 캔버스가 남은 공간을 채운다 */
 .scene {
   position: relative;

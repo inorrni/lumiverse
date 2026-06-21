@@ -1,0 +1,14 @@
+.reviewInput {
+  display: block;
+  width: 100%;
+  /* 별 아이콘(21px) + gap 만큼 들여써 목표명 바로 아래에 정렬 */
+  margin: var(--space-1) 0 0;
+  padding: 0 0 var(--space-1) calc(21px + var(--space-3));
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--paper-ink);
+}
+.reviewInput::placeholder { color: var(--paper-mid); }

@@ -8,6 +8,11 @@ export function Planet({ size = 64, alt = '', style, clarity }) {
   return <ClarityFilter src={asset('assets/celestial/planet.png')} size={size} alt={alt} style={style} clarity={clarity} />
 }
 
+export function Telescope({ size = 56, alt = '', style }) {
+  return <img src={asset('assets/celestial/telescope.png')} alt={alt} width={size} height={size}
+    style={{ flex: 'none', objectFit: 'contain', ...style }} />
+}
+
 export function BlackHole({ size = 56, alt = '', style }) {
   return <img src={asset('assets/celestial/blackhole.png')} alt={alt} width={size} height={size}
     style={{ flex: 'none', objectFit: 'contain', ...style }} />
