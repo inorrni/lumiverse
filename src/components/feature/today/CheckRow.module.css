@@ -1,12 +1,17 @@
 .row {
+  width: 100%;
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--text-hi);
+}
+
+/* 한 줄(별 + 본문 + 회고버튼)의 가로 레이아웃 — 회고 입력칸은 이 아래에 붙는다 */
+.rowMain {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   width: 100%;
   min-height: var(--touch-min);
-  padding: var(--space-4) 0;
-  border-bottom: 1px solid var(--line-soft);
-  color: var(--text-hi);
 }
 
 .last { border-bottom: none; }
@@ -127,8 +132,9 @@
   border-color: var(--text-hi);
 }
 
-/* 갱지(잉크) 변형 — TodayPage 의 PaperCard 안에서 */
-.ink { border-bottom-color: var(--paper-line); color: var(--paper-ink); }
+/* 갱지(잉크) 변형 — TodayPage·대시보드 Today 카드. 행 높이를 절반으로 컴팩트하게. */
+.ink { border-bottom-color: var(--paper-line); color: var(--paper-ink); padding: var(--space-2) 0; }
+.ink .rowMain { min-height: var(--space-6); } /* 44px → 24px */
 .ink .star { color: var(--paper-ink); }
 .ink .title { color: var(--paper-ink); }
 .ink .sub { color: var(--paper-mid); }

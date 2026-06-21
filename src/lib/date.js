@@ -29,6 +29,19 @@ export function starCount(dday) {
   return d == null ? null : d + 1
 }
 
+// 'YYYY.MM.DD' (카드 마감일 표기). 미선택이면 null.
+export function formatDday(dday) {
+  if (!dday) return null
+  const [y, m, d] = dday.split('-')
+  return `${y}.${m}.${d}`
+}
+
+// 오늘 기준 부호 있는 일수(오늘=0, 미래=양수, 과거=음수). daysUntil 과 달리 과거도 음수로 반환. 미선택이면 null.
+export function ddayDelta(dday) {
+  if (!dday) return null
+  return Math.round((new Date(dday).getTime() - new Date(todayISO()).getTime()) / DAY)
+}
+
 // 'YYYY-MM-DD' 에 n일을 더한 로컬 날짜 문자열.
 export function addDaysISO(iso, n) {
   const [y, m, d] = iso.split('-').map(Number)

@@ -48,6 +48,56 @@
   margin-bottom: var(--space-4);
 }
 
+/* 확인 단계 — 개수 선택 + 더 키우기/지금 만들기 */
+.counter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+.counterLabel {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+.counterCtl {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.counterBtn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  background: none;
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s, opacity 0.15s;
+}
+.counterBtn:hover:not(:disabled) { border-color: var(--text-secondary); }
+.counterBtn:disabled { opacity: 0.3; cursor: default; }
+.counterVal {
+  min-width: 28px;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+}
+.counterHint {
+  margin: var(--space-2) 0 var(--space-5);
+  font-size: var(--text-xs);
+  color: var(--text-low);
+}
+.confirmRow {
+  display: flex;
+  gap: var(--space-3);
+}
+
 .state {
   display: flex;
   align-items: center;

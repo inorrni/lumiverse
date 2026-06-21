@@ -7,14 +7,12 @@ import TextInput from '../components/ui/TextInput'
 import Button from '../components/ui/Button'
 import { Spinner } from '../components/ui/DataView'
 import { useAuth } from '../store/AuthStore'
-import { useGoals } from '../store/GoalStore'
 import styles from './AuthPage.module.css'
 
-// 2 · 로그인/가입 (Must) — Supabase Auth. 신규 → 모드 선택 / 기존(우주 보유) → 대시보드.
+// 2 · 로그인/가입 (Must) — Supabase Auth. 신규(닉네임 없음) → 닉네임 설정 / 기존 → 대시보드 바로.
 export default function AuthPage() {
   const navigate = useNavigate()
   const { login, loginWithKakao, user, ready, nickname, profileReady } = useAuth()
-  const { goals } = useGoals()
   const [params, setParams] = useSearchParams()
   const [email, setEmail] = useState('')
   const [pw, setPw] = useState('')
@@ -39,7 +37,7 @@ export default function AuthPage() {
     }
     if (!profileReady) return // 닉네임 조회 대기
     if (!nickname) navigate('/welcome', { replace: true }) // 신규 → 닉네임 설정
-    else navigate(goals.length > 0 ? '/app' : '/mode', { replace: true })
+    else navigate('/app', { replace: true }) // 기존(정보 있음) → 대시보드 바로 (목표 0개여도 대시보드 빈 상태로)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [submitted, fromOAuth, ready, user, profileReady, nickname])
 

@@ -48,6 +48,11 @@ function deriveGoal(g) {
   // 중간점검 — 가장 최근 저장값 1개(created_at desc).
   const midCheck = (Array.isArray(g.midchecks) ? [...g.midchecks] : [])
     .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))[0] ?? null
+  // 라이프사이클 파생 — 완료(모든 별 100%) > 기간종료(디데이 지남) > 진행중. 모두 DB status='active' 안에서 파생.
+  const clarity = galaxyClarity(planets)
+  const expired = !!g.dday_end && g.dday_end < today // 'YYYY-MM-DD' 사전식 비교
+  const completed = steps.length > 0 && clarity === 100
+  const lifecycle = completed ? 'completed' : expired ? 'expired' : 'active'
   return {
     id: g.id,
     title: g.name,
@@ -55,10 +60,13 @@ function deriveGoal(g) {
     days: daysUntil(g.dday_end),
     mode: g.intensity === 'spartan' ? 'sparta' : 'gentle',
     intensity: g.intensity,
+    inputMode: g.input_mode, // 'ai'(추천) | 'self'(알아서)
     status: g.status,
+    lifecycle, // 'active' | 'expired' | 'completed' (파생)
+    expired, // 디데이 지남
     stars: steps.reduce((n, s) => n + s.stars, 0),
     starsEarned: steps.reduce((n, s) => n + s.done, 0),
-    clarity: galaxyClarity(planets),
+    clarity,
     constellation, // { symbol, star_count } | null
     midCheck, // { state, verdict, message, created_at } | null (최근 저장 점검)
     steps,

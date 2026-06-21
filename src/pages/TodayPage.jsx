@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import AppScreen from '../components/layout/AppScreen'
 import BottomNav from '../components/layout/BottomNav'
@@ -9,31 +9,10 @@ import Card from '../components/ui/Card'
 import { EmptyView } from '../components/ui/DataView'
 import { StarIcon, Sparkle } from '../components/ui/icons'
 import CheckRow from '../components/feature/today/CheckRow'
+import ReviewField from '../components/feature/today/ReviewField'
 import { useGoals } from '../store/GoalStore'
 import { todayLabel } from '../lib/date'
 import styles from './TodayPage.module.css'
-
-// 한 줄 회고 입력 — 별 아래에 노출(체크 무관). blur/Enter 시 저장(변경된 경우만).
-function ReviewField({ initial, onSave, autoFocus }) {
-  const [text, setText] = useState(initial || '')
-  useEffect(() => { setText(initial || '') }, [initial])
-  const commit = () => {
-    if ((text || '').trim() !== (initial || '').trim()) onSave(text)
-  }
-  return (
-    <input
-      className={styles.reviewInput}
-      type="text"
-      value={text}
-      maxLength={60}
-      autoFocus={autoFocus}
-      placeholder="한 줄 회고 — 오늘 어땠나요?"
-      onChange={(e) => setText(e.target.value)}
-      onBlur={commit}
-      onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur() }}
-    />
-  )
-}
 
 // 8 · 오늘의 투두 (Must 핵심 루프) — 오늘의 별을 체크하면 선명도가 오른다.
 export default function TodayPage() {
@@ -139,14 +118,14 @@ export default function TodayPage() {
                               onReview={() => toggleReview(key)}
                               reviewFilled={hasReview}
                               reviewOpen={reviewOpen}
+                              review={
+                                <ReviewField
+                                  autoFocus={!hasReview}
+                                  initial={step.todayReview}
+                                  onSave={(text) => setStarReview(grp.id, step.id, step.todayStarId, text)}
+                                />
+                              }
                             />
-                            {reviewOpen && (
-                              <ReviewField
-                                autoFocus={!hasReview}
-                                initial={step.todayReview}
-                                onSave={(text) => setStarReview(grp.id, step.id, step.todayStarId, text)}
-                              />
-                            )}
                           </div>
                         )
                       })}

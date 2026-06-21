@@ -161,6 +161,38 @@
   gap: var(--space-3);
 }
 
+/* 카드 바깥 액션 헤더 — 새 목표 / 전체 보기 (캐러셀 위) */
+.universeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+/* 카드 메타 — 카드 헤더 우측, 마감일 + 모드 태그(은은하게) */
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ddayMeta {
+  font-size: var(--text-xs);
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  opacity: 0.85;
+}
+
+.modeTag {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-full);
+  padding: 1px var(--space-2);
+  opacity: 0.85;
+}
+
 .addBtn {
   background: none;
   border: 1px solid var(--line);
@@ -197,6 +229,14 @@
   align-items: center;
   gap: var(--space-3);
   min-width: 0;
+}
+
+/* 별자리 완성 — 버튼 없이 별자리+문구를 가운데 정렬 */
+.footerDone {
+  justify-content: center;
+}
+.footerDone .footerText {
+  text-align: center;
 }
 
 .footerText {
