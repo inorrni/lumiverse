@@ -122,8 +122,14 @@ function Trail({ checkedDays, todayIdx }) {
 }
 
 // 7 · 행성(목표) 상세 (Must 핵심 루프) — 선명도 + 별 체크 + 강도.
+// 행성↔행성/은하 이동은 같은 라우트(/app/planet/:id)라 인스턴스가 재사용된다.
+// key={id} 로 id 마다 새로 마운트해 화면·클릭 핸들러가 확실히 갱신되도록 감싼다.
 export default function PlanetDetailPage() {
   const { id } = useParams()
+  return <PlanetDetail key={id} id={id} />
+}
+
+function PlanetDetail({ id }) {
   const navigate = useNavigate()
   const { goals, toggleStarToday } = useGoals()
 
