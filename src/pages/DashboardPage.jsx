@@ -75,9 +75,10 @@ export default function DashboardPage() {
   const doneToday = allSteps.filter((s) => s.checkedToday).length
   // Today·Mid-Check 카드는 현재 보고 있는(활성) 목표 기준
   const activeGoal = goals[activeIdx] || goals[0]
-  // 활성 목표의 오늘 별 체크/전체(오늘 별 있는 행성 기준)
-  const todayDone = activeGoal ? activeGoal.steps.filter((s) => s.checkedToday).length : 0
-  const todayTotal = activeGoal ? activeGoal.steps.filter((s) => s.todayStarId).length : 0
+  // 활성 목표의 오늘 별 있는 행성 — Today 카드 목록·카운트 공통 소스(보완으로 추가한 행성 포함)
+  const todaySteps = activeGoal ? activeGoal.steps.filter((s) => s.todayStarId) : []
+  const todayDone = todaySteps.filter((s) => s.checkedToday).length
+  const todayTotal = todaySteps.length
 
   return (
     <AppScreen padTop={20} seed={5} nav={<BottomNav />}>
@@ -215,15 +216,19 @@ export default function DashboardPage() {
             <Kicker tone="ink">Today</Kicker>
             <span className={styles.todayDate}>{todayDone}/{todayTotal} · {activeGoal.days == null ? '∞' : activeGoal.days === 0 ? 'D-DAY' : `D-${activeGoal.days}`}</span>
           </div>
-          {activeGoal.steps.slice(0, 3).map((s, i, arr) => (
-            <TodayRow
-              key={s.id}
-              title={s.title}
-              done={s.checkedToday}
-              last={i === arr.length - 1}
-            />
-          ))}
-          <button className={styles.todayMore} onClick={() => navigate('/app/today')}>모두 보기 →</button>
+          {todaySteps.length === 0 ? (
+            <p className={styles.todayEmpty}>오늘 배정된 별이 없어요.</p>
+          ) : (
+            todaySteps.map((s, i, arr) => (
+              <TodayRow
+                key={s.id}
+                title={s.title}
+                done={s.checkedToday}
+                last={i === arr.length - 1}
+              />
+            ))
+          )}
+          <button className={styles.todayMore} onClick={() => navigate('/app/today', { state: { goalId: activeGoal.id } })}>모두 보기 →</button>
         </Card>
       )}
 

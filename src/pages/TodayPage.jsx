@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import AppScreen from '../components/layout/AppScreen'
 import BottomNav from '../components/layout/BottomNav'
 import BackRow from '../components/ui/BackRow'
@@ -38,8 +38,9 @@ function ReviewField({ initial, onSave, autoFocus }) {
 // 8 · 오늘의 투두 (Must 핵심 루프) — 오늘의 별을 체크하면 선명도가 오른다.
 export default function TodayPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { goals, toggleStarToday, setStarReview } = useGoals()
-  const [doneOnly, setDoneOnly] = useState(false)
+  const [undoneOnly, setUndoneOnly] = useState(false)
   // 아이콘으로 펼친 회고 입력칸 키 모음 (체크 여부와 무관하게 작성 가능)
   const [openReview, setOpenReview] = useState(() => new Set())
   const toggleReview = (key) =>
@@ -49,8 +50,11 @@ export default function TodayPage() {
       return next
     })
 
-  // 펼침/접힘(목표별 드롭다운) — 기본 접힘, 헤더 클릭 시 펼침
-  const [expanded, setExpanded] = useState(() => new Set())
+  // 펼침/접힘(목표별 드롭다운) — 기본 접힘. 대시보드 Today에서 넘어오면 그 은하를 펼친 채로 시작.
+  const [expanded, setExpanded] = useState(() => {
+    const gid = location.state?.goalId
+    return new Set(gid ? [gid] : [])
+  })
   const toggleGroup = (id) =>
     setExpanded((prev) => {
       const next = new Set(prev)
@@ -71,9 +75,9 @@ export default function TodayPage() {
   const doneCount = groups.reduce((n, grp) => n + grp.rows.filter((r) => r.checked).length, 0)
   const allDone = total > 0 && doneCount === total
 
-  // 완료만 보기 필터 적용 후 표시할 그룹
+  // 완료 안 된 별만 보기 필터 적용 후 표시할 그룹
   const shownGroups = groups
-    .map((grp) => ({ ...grp, rows: doneOnly ? grp.rows.filter((r) => r.checked) : grp.rows }))
+    .map((grp) => ({ ...grp, rows: undoneOnly ? grp.rows.filter((r) => !r.checked) : grp.rows }))
     .filter((grp) => grp.rows.length > 0)
 
   return (
@@ -94,7 +98,7 @@ export default function TodayPage() {
 
           {shownGroups.length === 0 ? (
             <Card variant="paper" pad="4px 18px">
-              <div className={styles.emptyDone}>아직 완료한 별이 없어요.</div>
+              <div className={styles.emptyDone}>{undoneOnly ? '완료 안 된 별이 없어요. 다 끝냈어요!' : '표시할 별이 없어요.'}</div>
             </Card>
           ) : (
             shownGroups.map((grp) => {
@@ -124,9 +128,10 @@ export default function TodayPage() {
                         const hasReview = !!step.todayReview
                         const reviewOpen = openReview.has(key)
                         return (
-                          <div key={key}>
+                          <div key={key} className={`${styles.item} ${idx === grp.rows.length - 1 ? styles.itemLast : ''}`}>
                             <CheckRow
                               ink
+                              last
                               title={step.title}
                               meta={`${step.done}/${step.stars}`}
                               done={checked}
@@ -134,7 +139,6 @@ export default function TodayPage() {
                               onReview={() => toggleReview(key)}
                               reviewFilled={hasReview}
                               reviewOpen={reviewOpen}
-                              last={idx === grp.rows.length - 1}
                             />
                             {reviewOpen && (
                               <ReviewField
@@ -167,8 +171,8 @@ export default function TodayPage() {
           )}
 
           <div className={styles.spacer} />
-          <Button variant="ghost" fullWidth onClick={() => setDoneOnly((v) => !v)}>
-            {doneOnly ? '전체 별 보기' : '완료된 별만 보기'}
+          <Button variant="ghost" fullWidth onClick={() => setUndoneOnly((v) => !v)}>
+            {undoneOnly ? '전체 별 보기' : '완료 안 된 별만 보기'}
           </Button>
         </>
       )}
