@@ -189,11 +189,11 @@ export default function DashboardPage() {
                 <div key={goal.id} className={styles.universeSlide}>
                   <Card pad={0} className={styles.universeCard}>
                     <div className={styles.cardHead}>
-                      <span className={styles.headLeft}><Sparkle size={10} /><Kicker tone="hi">{goal.title}</Kicker></span>
-                      <div className={styles.cardMeta}>
-                        <span className={styles.ddayMeta}>{ddayText}</span>
+                      <span className={styles.headLeft}>
+                        <Sparkle size={10} /><Kicker tone="hi" className={styles.cardTitle}>{goal.title}</Kicker>
                         <span className={styles.modeTag}>{styleTag}</span>
-                      </div>
+                      </span>
+                      <span className={styles.ddayMeta}>{ddayText}</span>
                     </div>
                     <div className={styles.universeBody}>
                       <UniverseMap
