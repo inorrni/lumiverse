@@ -10,6 +10,9 @@ import { chatJSON } from '../_shared/llm.ts'
 
 const RATE_LIMIT_PER_HOUR = 30
 
+// 프롬프트 변경 시 올린다 — input_hash에 포함돼 옛 캐시를 자동 무효화한다.
+const PROMPT_VERSION = 'v2'
+
 interface SymbolInput {
   goal: string
   intensity?: 'easy' | 'normal' | 'spartan'
@@ -29,15 +32,20 @@ async function sha256Hex(text: string): Promise<string> {
 }
 
 function buildMessages(input: SymbolInput) {
-  const system = `You suggest constellation emblems for Lumiverse, a goal app (goal=galaxy). When a user keeps a goal long enough, they form a "별자리"(constellation) and pick a single emoji emblem for it.
+  const system = `You suggest constellation emblems for Lumiverse, a goal app (goal=galaxy). When a user keeps a goal long enough, they form a "별자리"(constellation) and pick ONE emoji emblem that represents THAT specific goal.
 
 Return ONLY JSON of this exact shape:
 { "symbols": [ { "symbol": string, "label": string } ] }
 
-- Propose 4-5 candidates that fit the goal's meaning/domain. Variety, not near-duplicates.
-- "symbol": EXACTLY ONE emoji.
-- "label": a short Korean word/phrase naming the emblem's vibe (예: "꾸준한 불꽃").
-- Korean labels. No explanations outside JSON.`
+Rules:
+- Propose EXACTLY 3 candidates, each clearly tied to the SPECIFIC goal's subject/domain. 3 distinct angles, no near-duplicates.
+- "symbol": EXACTLY ONE emoji that evokes the goal's ACTUAL content/domain. Avoid generic ⭐🌟✨🌠🌌🪐 star/space emojis (the constellation context already implies stars).
+- "label": a short Korean noun phrase capturing what THIS goal means to the user — concrete to the goal. Do NOT use generic filler like "○○의 별", "빛나는 별", "꾸준한 불꽃" — name the goal's own theme.
+- Korean labels. No text outside JSON.
+
+Examples (illustrative only — ALWAYS derive from the user's ACTUAL goal, never default to these):
+- goal "포트폴리오 사이트 완성" → [ {"symbol":"💻","label":"세상에 내보일 작품"}, {"symbol":"🎨","label":"나만의 무대"}, {"symbol":"🚀","label":"완성해 띄우다"} ]
+- goal "마라톤 완주" → [ {"symbol":"🏃","label":"끝까지 달리는 다리"}, {"symbol":"🥇","label":"결승선의 나"}, {"symbol":"🔥","label":"멈추지 않는 심장"} ]`
 
   const user = JSON.stringify({ goal: input.goal, intensity: input.intensity ?? 'normal' })
 
@@ -56,7 +64,7 @@ function validate(parsed: unknown): { symbols: { symbol: string; label: string }
       symbol: (s.symbol as string).trim(),
       label: typeof s?.label === 'string' ? (s.label as string).trim() : '',
     }))
-    .slice(0, 6)
+    .slice(0, 3) // 추천은 3개만
   if (symbols.length === 0) throw new Error('no symbols')
   return { symbols }
 }
@@ -87,7 +95,7 @@ Deno.serve(async (req) => {
   if (!input?.goal || !String(input.goal).trim()) return json({ error: 'goal is required' }, 400)
 
   const intensity = input.intensity ?? 'normal'
-  const inputHash = await sha256Hex(`${input.goal.trim()}|${intensity}`)
+  const inputHash = await sha256Hex(`${PROMPT_VERSION}|${input.goal.trim()}|${intensity}`)
 
   // 1) 캐시 조회
   const { data: cached } = await supabase
