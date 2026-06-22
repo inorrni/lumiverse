@@ -153,6 +153,18 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  flex: 1;          /* 남은 폭 차지 → 긴 제목이 줄어들 공간 확보 */
+  min-width: 0;     /* 자식(제목) 말줄임이 동작하도록 */
+}
+.headLeft > svg { flex: none; }
+
+/* 목표명 — 길면 한 줄 말줄임(…), 모드 태그·날짜는 밀려나지 않음 */
+.cardTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .headRight {
@@ -178,6 +190,9 @@
 }
 
 .ddayMeta {
+  flex: none;            /* 맨 오른쪽 고정 — 제목이 길어도 안 밀림 */
+  white-space: nowrap;
+  margin-left: var(--space-3);
   font-size: var(--text-xs);
   letter-spacing: 0.02em;
   color: var(--text-secondary);
@@ -185,6 +200,8 @@
 }
 
 .modeTag {
+  flex: none;            /* 제목 옆 고정 — 줄어들지 않음 */
+  white-space: nowrap;
   font-size: var(--text-xs);
   color: var(--text-secondary);
   border: 1px solid var(--line-soft);
