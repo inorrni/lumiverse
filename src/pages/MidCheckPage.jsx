@@ -132,6 +132,8 @@ export default function MidCheckPage() {
       const drop = goal.steps.filter((s) => !keep.has(s.id))
       for (const s of drop) await blackholePlanet(goal.id, s.id)
       if (rec && addRec) await addPlanet(goal.id, { name: rec.name, symbol: rec.symbol, todo_pattern: rec.todo_pattern })
+      // 대시보드가 이 은하 카드로 복원되도록 lastGoalId 지정(키는 DashboardPage 와 동일)
+      try { localStorage.setItem('lumiverse:lastGoalId', JSON.stringify(goal.id)) } catch { /* 무시 */ }
       navigate('/app')
     }
     return (
@@ -164,7 +166,7 @@ export default function MidCheckPage() {
         {rec && (
           <>
             <Kicker>점검 추천 행성</Kicker>
-            <Card pad="4px 16px" className={styles.list}>
+            <Card variant="paper" pad="4px 16px" className={styles.list}>
               <button
                 type="button"
                 className={`${styles.pick} ${addRec ? styles.pickOn : ''} ${styles.pickLast}`}
